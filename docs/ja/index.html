@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="ja" prefix="og: https://ogp.me/ns#">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>PSD から PNG/JSON へ変換</title>
+    <link rel="stylesheet" href="../main.css?v1.0.0">
+    <link rel="alternate" hreflang="en" href="https://kerupani129s.github.io/psd-to-png-or-json/">
+    <meta property="og:title" content="PSD から PNG/JSON へ変換">
+    <meta property="og:description" content="PSD から PNG/JSON へ変換">
+    <meta property="og:url" content="https://kerupani129s.github.io/psd-to-png-or-json/ja/">
+    <meta property="og:type" content="website">
+    <meta name="twitter:card" content="summary">
+  </head>
+  <body>
+    <div class="site-content">
+      <nav class="language-menu"><a href=".." rel="alternate" hreflang="en" lang="en">English</a> | 日本語</nav>
+      <header>
+        <h1 class="site-title"><a href=".">PSD から PNG/JSON へ変換</a></h1>
+      </header>
+      <div role="application">
+        <h2>ファイルを選択</h2>
+        <p><input type="file" id="file" accept=".psd"></p>
+        <div id="converting" class="converting">
+          <p>変換中 ...</p>
+        </div>
+        <div id="error-result" class="error-result">
+          <h2>変換結果</h2>
+          <p class="error">エラー!</p>
+        </div>
+        <div id="result" class="result">
+          <h2>変換結果</h2>
+          <h3>統合済み画像</h3>
+          <div class="flattened-image-container">
+            <img alt="{{image}}" id="flattened-image" class="flattened-image">
+          </div>
+          <p>
+          <a download="{{image}}.png" id="flattened-image-link" class="flattened-image-link">統合済み画像 (PNG)</a>
+          </p>
+          <h3>レイヤー情報とレイヤー画像</h3>
+          <h4>分離</h4>
+          <p>
+          <a download="{{image}}-info.json" id="layer-info-link" class="layer-info-link">レイヤー情報 (JSON)</a><br>
+          <a download="{{image}}-layers.zip" id="layer-images-link" class="layer-images-link">レイヤー画像 (PNG 画像の ZIP)</a>
+          </p>
+          <h4>統合</h4>
+          <p>
+          <a download="{{image}}.json" id="layer-info-and-layer-images-link" class="layer-info-and-layer-images-link">レイヤー情報とレイヤー画像 (JSON)</a>
+          </p>
+        </div>
+      </div>
+      <main>
+        <h2>特徴</h2>
+        <p>
+        出力:
+        </p>
+        <ul>
+          <li>統合済み画像</li>
+          <li>レイヤー情報とレイヤー画像</li>
+        </ul>
+        <p>
+        変換処理はブラウザ上で行われます。<br>
+        PSD ファイルや変換結果はサーバーにアップロードされません。
+        </p>
+        <h2>免責事項</h2>
+        <p>
+        全ての PSD ファイル形式をサポートしているわけではありません。
+        </p>
+        <p>
+        本ツールは <a href="./license">MIT ライセンス</a>の下で利用可能です。<br>
+        保証なし・責任なし
+        </p>
+        <h2>ライセンス</h2>
+        <p>本ツールは <a href="./license">MIT ライセンス</a>の下で利用可能です。</p>
+        <p><a href="./third-party-licenses">サードパーティライセンス</a></p>
+      </main>
+      <footer class="site-footer">
+        <a href="https://github.com/kerupani129s/psd-to-png-or-json">GitHub で見る</a>
+      </footer>
+    </div>
+
+    <script src="../lib/psd.min.js?v3.4.0"></script>
+    <script src="../lib/jszip.min.js?v3.7.1"></script>
+    <script src="../main.js?v1.0.0"></script>
+  </body>
+</html>

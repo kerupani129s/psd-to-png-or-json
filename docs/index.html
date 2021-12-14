@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en" prefix="og: https://ogp.me/ns#">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Convert PSD to PNG/JSON</title>
+    <link rel="stylesheet" href="./main.css?v1.0.0">
+    <link rel="alternate" hreflang="ja" href="https://kerupani129s.github.io/psd-to-png-or-json/ja/">
+    <meta property="og:title" content="Convert PSD to PNG/JSON">
+    <meta property="og:description" content="Convert PSD to PNG/JSON">
+    <meta property="og:url" content="https://kerupani129s.github.io/psd-to-png-or-json/">
+    <meta property="og:type" content="website">
+    <meta name="twitter:card" content="summary">
+  </head>
+  <body>
+    <div class="site-content">
+      <nav class="language-menu">English | <a href="./ja" rel="alternate" hreflang="ja" lang="ja">日本語</a></nav>
+      <header>
+        <h1 class="site-title"><a href=".">Convert PSD to PNG/JSON</a></h1>
+      </header>
+      <div role="application">
+        <h2>Select File</h2>
+        <p><input type="file" id="file" accept=".psd"></p>
+        <div id="converting" class="converting">
+          <p>Converting ...</p>
+        </div>
+        <div id="error-result" class="error-result">
+          <h2>Conversion Result</h2>
+          <p class="error">Error!</p>
+        </div>
+        <div id="result" class="result">
+          <h2>Conversion Result</h2>
+          <h3>Flattened Image</h3>
+          <div class="flattened-image-container">
+            <img alt="{{image}}" id="flattened-image" class="flattened-image">
+          </div>
+          <p>
+          <a download="{{image}}.png" id="flattened-image-link" class="flattened-image-link">Flattened Image (PNG)</a>
+          </p>
+          <h3>Layer Information and Layer Images</h3>
+          <h4>Separated</h4>
+          <p>
+          <a download="{{image}}-info.json" id="layer-info-link" class="layer-info-link">Layer Information (JSON)</a><br>
+          <a download="{{image}}-layers.zip" id="layer-images-link" class="layer-images-link">Layer Images (ZIP of PNG images)</a>
+          </p>
+          <h4>Combined</h4>
+          <p>
+          <a download="{{image}}.json" id="layer-info-and-layer-images-link" class="layer-info-and-layer-images-link">Layer Information and Layer Image Data (JSON)</a>
+          </p>
+        </div>
+      </div>
+      <main>
+        <h2>Features</h2>
+        <p>
+        Outputs:
+        </p>
+        <ul>
+          <li>Flattened Image</li>
+          <li>Layer Information and Layer Images</li>
+        </ul>
+        <p>
+        The conversion processing is done in the browser.<br>
+        The PSD file or the conversion result is not uploaded to a server.
+        </p>
+        <h2>Disclaimer</h2>
+        <p>
+        Not all PSD file formats are supported.
+        </p>
+        <p>
+        This tool is available under the <a href="./license">MIT License</a>.<br>
+        No Warranty and No Liability
+        </p>
+        <h2>Licenses</h2>
+        <p>This tool is available under the <a href="./license">MIT License</a>.</p>
+        <p><a href="./third-party-licenses">Third Party Licenses</a></p>
+      </main>
+      <footer class="site-footer">
+        <a href="https://github.com/kerupani129s/psd-to-png-or-json">View on GitHub</a>
+      </footer>
+    </div>
+
+    <script src="./lib/psd.min.js?v3.4.0"></script>
+    <script src="./lib/jszip.min.js?v3.7.1"></script>
+    <script src="./main.js?v1.0.0"></script>
+  </body>
+</html>
