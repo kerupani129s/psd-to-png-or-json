@@ -1,161 +1,221 @@
 (() => {
 
-	const PSD = require('psd');
+	const PSDUtils = (() => {
 
-	// 
-	const converting = document.getElementById('converting');
-	const errorResult = document.getElementById('error-result');
-	const result = document.getElementById('result');
+		const PSD = require('psd');
 
-	const flattenedImage = document.getElementById('flattened-image');
-	const flattenedImageLink = document.getElementById('flattened-image-link');
-	const layerInfoLink = document.getElementById('layer-info-link');
-	const layerImagesLink = document.getElementById('layer-images-link');
-	const layerInfoAndLayerImagesLink = document.getElementById('layer-info-and-layer-images-link');
+		const readAsArrayBuffer = blob => new Promise((resolve, reject) => {
 
-	// 
-	const readAsArrayBuffer = blob => new Promise((resolve, reject) => {
+			const reader = new FileReader();
 
-		const reader = new FileReader();
+			reader.onload = () => resolve(reader.result);
+			reader.onerror = e => reject(e);
 
-		reader.onload = () => resolve(reader.result);
-		reader.onerror = e => reject(e);;
-
-		reader.readAsArrayBuffer(blob);
-
-	});
-
-	// 
-	const setImageFilename = filename => {
-
-		const [, name] = filename.match(/^(.+?)(?:\.[^.]+)?$/);
-
-		for (const a of [flattenedImageLink, layerInfoLink, layerImagesLink, layerInfoAndLayerImagesLink]) {
-			a.download = a.download.replaceAll('{{image}}', name);
-		}
-
-		flattenedImage.alt = flattenedImage.alt.replaceAll('{{image}}', name);
-
-	};
-
-	const readAsPsd = async file => {
-
-		const arrayBuffer = await readAsArrayBuffer(file);
-		// or
-		// const arrayBuffer = await file.arrayBuffer();
-
-		const data = new Uint8Array(arrayBuffer);
-
-		const psd = new PSD(data);
-		psd.parse();
-
-		return psd;
-
-	};
-
-	const renderFlattenedImage = psd => {
-
-		const dataUrl = psd.image.toBase64();
-
-		flattenedImage.src = dataUrl;
-		flattenedImageLink.href = dataUrl;
-
-	};
-
-	const getInfo = root => {
-
-		const width = root.width;
-		const height = root.height;
-
-		const descendants = root.descendants().map(node => {
-
-			const formattedNode = {};
-
-			for (const [key, value] of Object.entries(node.export())) {
-				if ( ! ['children', 'mask', 'image'].includes(key) ) {
-					formattedNode[key] = value;
-				}
-			}
-
-			formattedNode.path = node.path(true);
-
-			if ( node.isLayer() ) {
-				formattedNode.src = node.layer.image.toBase64();
-			}
-
-			return formattedNode;
+			reader.readAsArrayBuffer(blob);
 
 		});
 
-		return {
-			width,
-			height,
-			descendants,
+		// Issue: https://github.com/meltingice/psd.js/issues/197
+		// const fromFile = file => PSD.fromDroppedFile(file);
+
+		const fromFile = async file => {
+
+			const arrayBuffer = await readAsArrayBuffer(file);
+			// or
+			// const arrayBuffer = await file.arrayBuffer();
+
+			const data = new Uint8Array(arrayBuffer);
+
+			const psd = new PSD(data);
+			psd.parse();
+
+			return psd;
+
 		};
 
-	};
-
-	const separateImageData = info => {
-
-		const images = [];
-
-		const width = info.width;
-		const height = info.height;
-		const descendants = info.descendants.map((node, i) => {
-			if ( 'layer' === node.type ) {
-				const newNode = Object.assign({}, node);
-				newNode.src = i + '.png';
-				images.push({ node: newNode, data: node.src });
-				return newNode;
-			} else {
-				images.push({ node });
-				return node;
-			}
-		});
-
 		return {
-			info: {
+			fromFile,
+		};
+
+	})();
+
+	const renderImageName = (() => {
+
+		const flattenedImage = document.getElementById('flattened-image');
+
+		const flattenedImageLink = document.getElementById('flattened-image-link');
+		const layerInfoLink = document.getElementById('layer-info-link');
+		const layerImagesLink = document.getElementById('layer-images-link');
+		const layerInfoAndLayerImagesLink = document.getElementById('layer-info-and-layer-images-link');
+
+		const renderImageName = name => {
+
+			flattenedImage.alt = name;
+
+			flattenedImageLink.download = name + '.png';
+			layerInfoLink.download = name + '-info.json';
+			layerImagesLink.download = name + '-layers.zip';
+			layerInfoAndLayerImagesLink.download = name + '.json';
+
+		};
+
+		return renderImageName;
+
+	})();
+
+	const convertToFlattenedImage = (() => {
+
+		const flattenedImage = document.getElementById('flattened-image');
+		const flattenedImageLink = document.getElementById('flattened-image-link');
+
+		const convertToFlattenedImage = psd => {
+
+			const dataURL = psd.image.toBase64();
+
+			flattenedImage.src = dataURL;
+			flattenedImageLink.href = dataURL;
+
+		};
+
+		return convertToFlattenedImage;
+
+	})();
+
+	const getNodeInfo = (() => {
+
+		const ExportedNode = class {
+
+			_node = {};
+
+			_imageURL;
+			_imageFileName;
+
+			constructor(node, imageFileName = null) {
+
+				for (const [key, value] of Object.entries(node.export())) {
+					if ( ! ['children', 'mask', 'image'].includes(key) ) {
+						this._node[key] = value;
+					}
+				}
+
+				this._node.path = node.path(true);
+
+				this._imageURL = node.isLayer() ? node.layer.image.toBase64() : null;
+				this._imageFileName = node.isLayer() ? imageFileName : null;
+
+			}
+
+			get(withDataURL = false) {
+
+				const node = Object.assign({}, this._node);
+
+				if ( this.hasImageURL() ) {
+					node.src = withDataURL ? this.getImageURL() : this.getImageFileName();
+				}
+
+				return node;
+
+			}
+
+			hasImageURL() {
+				return Boolean(this._imageURL);
+			}
+
+			getImageURL() {
+				return this._imageURL;
+			}
+
+			getImageFileName() {
+				return this._imageFileName;
+			}
+
+		};
+
+		const getNodeInfo = root => {
+
+			// 
+			const width = root.width;
+			const height = root.height;
+
+			// 
+			const images = [];
+
+			const exportedDescendants = root.descendants().map((node, i) => new ExportedNode(node, i + '.png'));
+
+			return {
+				width,
+				height,
+				exportedDescendants,
+			};
+
+		};
+
+		return getNodeInfo;
+
+	})();
+
+	const convertToLayerInfo = (() => {
+
+		const toJSONBlob = obj => {
+
+			const json = JSON.stringify(obj, null, 4);
+			const blob = new Blob([json], { type: 'application/json' });
+
+			return blob;
+
+		};
+
+		// 
+		const layerInfoLink = document.getElementById('layer-info-link');
+		const layerInfoAndLayerImagesLink = document.getElementById('layer-info-and-layer-images-link');
+
+		const convertToLayerInfo = (nodeInfo, withDataURL = false) => {
+
+			const width = nodeInfo.width;
+			const height = nodeInfo.height;
+			const descendants = nodeInfo.exportedDescendants
+				.map(exportedNode => exportedNode.get(withDataURL));
+
+			const layerInfo = {
 				width,
 				height,
 				descendants,
-			},
-			images,
-		};
+			};
 
-	};
-
-	const renderInfo = (info, linkElement) => {
-
-		const json = JSON.stringify(info, null, 4);
-		const blob = new Blob([json], {type: 'application/json'});
-		const url = URL.createObjectURL(blob);
-
-		linkElement.href = url;
-
-	};
-
-	const toZipBlob = images => {
-
-		const zip = new JSZip();
-
-		const zipFileName = layerImagesLink.download;
-		const [, folderName] = zipFileName.match(/^(.+?)(?:\.[^.]+)?$/);
-		const folder = zip.folder(folderName);
-
-		for (const image of images) {
-
-			const node = image.node;
+			const jsonBlob = toJSONBlob(layerInfo);
 
 			// 
-			const path = node.path
-				.map(name => '"' + name.replaceAll('<', '&lt;').replaceAll('>', '&gt;') + '"').join('/');
+			const a = withDataURL ? layerInfoAndLayerImagesLink : layerInfoLink;
 
-			if ( 'layer' === node.type ) {
+			a.href = URL.createObjectURL(jsonBlob);
 
-				const name = node.src;
+		};
+
+		return convertToLayerInfo;
+
+	})();
+
+	const convertToLayerImages = (() => {
+
+		const layerImagesLink = document.getElementById('layer-images-link');
+
+		const convertToLayerImages = async (nodeInfo, name) => {
+
+			const zip = new JSZip();
+
+			const folder = zip.folder(name);
+
+			// 
+			const exportedDescendants = nodeInfo.exportedDescendants
+				.filter(exportedNode => exportedNode.hasImageURL());
+
+			for (const exportedNode of exportedDescendants) {
+
+				const name = exportedNode.getImageFileName();
+				const url = exportedNode.getImageURL();
 
 				// 
-				const [, data] = image.data.match(/^data:[^,]*;base64(?:;[^,]*)?,(.*)$/) ?? [];
+				const [, data] = url.match(/^data:[^,]*;base64(?:;[^,]*)?,(.*)$/) || [];
 
 				if ( ! data ) {
 					throw new Error('Invalid image data');
@@ -163,104 +223,144 @@
 
 				folder.file(name, data, { base64: true });
 
-				// result.insertAdjacentHTML('beforeend', '<a href="' + image.data + '" download="' + node.src + '">' + node.src + ' (' + path + ')</a><br>');
-
-			} else if ( 'group' === node.type ) {
-				// result.insertAdjacentHTML('beforeend', '<span>(' + path + ')</span><br>');
 			}
 
-		}
+			const zipBlob = await zip.generateAsync({ type: 'blob' });
 
-		return zip.generateAsync({ type: 'blob' });
+			// 
+			layerImagesLink.href = URL.createObjectURL(zipBlob);
 
-	};
+		};
 
-	const renderZip = blob => {
-		const url = URL.createObjectURL(blob);
-		layerImagesLink.href = url;
-	};
+		return convertToLayerImages;
 
-	const render = async psd => {
+	})();
 
-		const root = psd.tree();
-		console.time("get info");
-		const info = getInfo(root);
-		console.timeEnd("get info");
+	const convert = (() => {
 
-		const infoSeparatedImageData = separateImageData(info);
-		const infoWithoutImageData = infoSeparatedImageData.info;
-		const images = infoSeparatedImageData.images;
+		const converting = document.getElementById('converting');
+		const errorResult = document.getElementById('error-result');
+		const result = document.getElementById('result');
 
-		console.time("to zip blob");
-		const zipBlob = await toZipBlob(images);
-		console.timeEnd("to zip blob");
+		const showConverting = () => {
 
-		// 
-		console.time("render flattened image");
-		renderFlattenedImage(psd);
-		console.timeEnd("render flattened image");
+			errorResult.classList.remove('displayed');
+			result.classList.remove('displayed');
 
-		renderInfo(infoWithoutImageData, layerInfoLink);
-		console.time("render layer info and layer images");
-		renderInfo(info, layerInfoAndLayerImagesLink);
-		console.timeEnd("render layer info and layer images");
+			converting.classList.add('displayed');
 
-		renderZip(zipBlob);
+		};
 
-		result.classList.add('displayed');
+		const getImageName = filename => {
+			const [, name] = filename.match(/^(.+?)(?:\.[^.]+)?$/);
+			return name;
+		};
 
-	};
+		const renderError = error => {
+			console.log(error);
+		};
 
-	const renderError = error => {
+		const showError = () => {
+			errorResult.classList.add('displayed');
+		};
 
-		console.log(error);
+		const hideConverting = () => {
+			converting.classList.remove('displayed');
+		};
 
-		errorResult.classList.add('displayed');
+		const convert = async file => {
 
-	};
+			showConverting();
 
-	// 
-	const inputFileElement = document.getElementById('file');
+			try {
 
-	inputFileElement.addEventListener('change', async event => {
+				// 
+				const name = getImageName(file.name);
 
-		// 
-		inputFileElement.disabled = true;
+				renderImageName(name);
 
-		// 
-		const files = event.target.files;
+				// 
+				const psd = await PSDUtils.fromFile(file);
 
-		if ( files.length === 0 ) {
+				console.time("flattened image");
+				convertToFlattenedImage(psd);
+				console.timeEnd("flattened image");
+
+				const root = psd.tree();
+
+				console.time("node info");
+				const nodeInfo = getNodeInfo(root);
+				console.timeEnd("node info");
+
+				convertToLayerInfo(nodeInfo, false);
+
+				console.time("layer images");
+				await convertToLayerImages(nodeInfo, name);
+				console.timeEnd("layer images");
+
+				console.time("layer info and layer images");
+				convertToLayerInfo(nodeInfo, true);
+				console.timeEnd("layer info and layer images");
+
+				result.classList.add('displayed');
+
+			} catch (error) {
+				renderError(error);
+				showError();
+			}
+
+			hideConverting();
+
+		};
+
+		return convert;
+
+	})();
+
+	(() => {
+
+		const inputFileElement = document.getElementById('file');
+
+		const converOnEvent = async file => {
+
+			console.time('all');
+
+			inputFileElement.disabled = true;
+
+			await convert(file);
+
 			inputFileElement.disabled = false;
-			return;
-		}
 
-		const file = files[0];
+			console.timeEnd('all');
+
+		};
 
 		// 
-		errorResult.classList.remove('displayed');
-		result.classList.remove('displayed');
+		inputFileElement.addEventListener('click', () => {
+			inputFileElement.value = '';
+		});
 
-		converting.classList.add('displayed');
+		inputFileElement.addEventListener('change', event => {
+			const files = event.target.files;
+			if ( files.length !== 1 ) return;
+			converOnEvent(files[0]);
+		});
 
-		try {
+		// 
+		const body = document.body;
 
-			// 
-			setImageFilename(file.name);
+		body.addEventListener('dragover', event => {
+			event.preventDefault();
+		});
 
-			// 
-			const psd = await readAsPsd(file);
+		body.addEventListener('drop', event => {
+			event.preventDefault();
+			const files = event.dataTransfer.files;
+			if ( files.length !== 1 ) return;
+			inputFileElement.files = files;
+			converOnEvent(files[0]);
+		});
 
-			await render(psd);
-
-		} catch (error) {
-			renderError(error);
-		}
-
-		converting.classList.remove('displayed');
-
-		inputFileElement.disabled = false;
-
-	});
+	})();
 
 })();

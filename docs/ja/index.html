@@ -32,20 +32,20 @@
           <h2>変換結果</h2>
           <h3>統合済み画像</h3>
           <div class="flattened-image-container">
-            <img alt="{{image}}" id="flattened-image" class="flattened-image">
+            <img id="flattened-image" class="flattened-image">
           </div>
           <p>
-          <a download="{{image}}.png" id="flattened-image-link" class="flattened-image-link">統合済み画像 (PNG)</a>
+          <a id="flattened-image-link" class="flattened-image-link">統合済み画像 (PNG)</a>
           </p>
           <h3>レイヤー情報とレイヤー画像</h3>
           <h4>分離</h4>
           <p>
-          <a download="{{image}}-info.json" id="layer-info-link" class="layer-info-link">レイヤー情報 (JSON)</a><br>
-          <a download="{{image}}-layers.zip" id="layer-images-link" class="layer-images-link">レイヤー画像 (PNG 画像の ZIP)</a>
+          <a id="layer-info-link" class="layer-info-link">レイヤー情報 (JSON)</a><br>
+          <a id="layer-images-link" class="layer-images-link">レイヤー画像 (PNG 画像の ZIP)</a>
           </p>
           <h4>統合</h4>
           <p>
-          <a download="{{image}}.json" id="layer-info-and-layer-images-link" class="layer-info-and-layer-images-link">レイヤー情報とレイヤー画像 (JSON)</a>
+          <a id="layer-info-and-layer-images-link" class="layer-info-and-layer-images-link">レイヤー情報とレイヤー画像 (JSON)</a>
           </p>
         </div>
       </div>
@@ -60,7 +60,7 @@
         </ul>
         <p>
         変換処理はブラウザ上で行われます。<br>
-        PSD ファイルや変換結果はサーバーにアップロードされません。
+        PSD ファイルや変換結果、その中間データはサーバーにアップロードされません。
         </p>
         <h2>免責事項</h2>
         <p>
