@@ -336,6 +336,10 @@
 		};
 
 		// 
+		inputFileElement.addEventListener('click', () => {
+			inputFileElement.value = '';
+		});
+
 		inputFileElement.addEventListener('change', event => {
 			const files = event.target.files;
 			if ( files.length !== 1 ) return;
