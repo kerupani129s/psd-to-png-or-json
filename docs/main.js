@@ -199,14 +199,11 @@
 
 		const layerImagesLink = document.getElementById('layer-images-link');
 
-		const convertToLayerImages = async nodeInfo => {
+		const convertToLayerImages = async (nodeInfo, name) => {
 
 			const zip = new JSZip();
 
-			const zipFileName = layerImagesLink.download;
-			const [, folderName] = zipFileName.match(/^(.+?)(?:\.[^.]+)?$/);
-
-			const folder = zip.folder(folderName);
+			const folder = zip.folder(name);
 
 			// 
 			const exportedDescendants = nodeInfo.exportedDescendants
@@ -298,7 +295,7 @@
 				convertToLayerInfo(nodeInfo, false);
 
 				console.time("layer images");
-				await convertToLayerImages(nodeInfo);
+				await convertToLayerImages(nodeInfo, name);
 				console.timeEnd("layer images");
 
 				console.time("layer info and layer images");
