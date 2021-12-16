@@ -41,20 +41,21 @@
 
 	const renderImageName = (() => {
 
+		const flattenedImage = document.getElementById('flattened-image');
+
 		const flattenedImageLink = document.getElementById('flattened-image-link');
 		const layerInfoLink = document.getElementById('layer-info-link');
 		const layerImagesLink = document.getElementById('layer-images-link');
 		const layerInfoAndLayerImagesLink = document.getElementById('layer-info-and-layer-images-link');
 
-		const flattenedImage = document.getElementById('flattened-image');
-
 		const renderImageName = name => {
 
-			for (const a of [flattenedImageLink, layerInfoLink, layerImagesLink, layerInfoAndLayerImagesLink]) {
-				a.download = a.download.replaceAll('{{image}}', name);
-			}
+			flattenedImage.alt = name;
 
-			flattenedImage.alt = flattenedImage.alt.replaceAll('{{image}}', name);
+			flattenedImageLink.download = name + '.png';
+			layerInfoLink.download = name + '-info.json';
+			layerImagesLink.download = name + '-layers.zip';
+			layerInfoAndLayerImagesLink.download = name + '.json';
 
 		};
 
