@@ -319,32 +319,42 @@
 
 	(() => {
 
-		// 
 		const inputFileElement = document.getElementById('file');
 
-		inputFileElement.addEventListener('change', async event => {
+		const converOnEvent = async file => {
 
 			console.time('all');
 
-			// 
 			inputFileElement.disabled = true;
 
-			// 
-			const files = event.target.files;
+			await convert(file);
 
-			if ( files.length > 0 ) {
-
-				const file = files[0];
-
-				await convert(file);
-
-			}
-
-			// 
 			inputFileElement.disabled = false;
 
 			console.timeEnd('all');
 
+		};
+
+		// 
+		inputFileElement.addEventListener('change', event => {
+			const files = event.target.files;
+			if ( files.length !== 1 ) return;
+			converOnEvent(files[0]);
+		});
+
+		// 
+		const body = document.body;
+
+		body.addEventListener('dragover', event => {
+			event.preventDefault();
+		});
+
+		body.addEventListener('drop', event => {
+			event.preventDefault();
+			const files = event.dataTransfer.files;
+			if ( files.length !== 1 ) return;
+			inputFileElement.files = files;
+			converOnEvent(files[0]);
 		});
 
 	})();
