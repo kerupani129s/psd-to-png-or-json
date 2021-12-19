@@ -2,8 +2,6 @@
 
 	const PSDUtils = (() => {
 
-		const PSD = require('psd');
-
 		const readAsArrayBuffer = blob => new Promise((resolve, reject) => {
 
 			const reader = new FileReader();
@@ -14,6 +12,20 @@
 			reader.readAsArrayBuffer(blob);
 
 		});
+
+		const readAsDataURL = blob => new Promise((resolve, reject) => {
+
+			const reader = new FileReader();
+
+			reader.onload = () => resolve(reader.result);
+			reader.onerror = e => reject(e);
+
+			reader.readAsDataURL(blob);
+
+		});
+
+		// 
+		const PSD = require('psd');
 
 		// Issue: https://github.com/meltingice/psd.js/issues/197
 		// const fromFile = file => PSD.fromDroppedFile(file);
@@ -33,8 +45,112 @@
 
 		};
 
+		const toBlob = psdImage => {
+
+			const width = psdImage.width();
+			const height = psdImage.height();
+
+			// 
+			const canvas = document.createElement('canvas');
+			canvas.width = width;
+			canvas.height = height;
+
+			const context = canvas.getContext('2d');
+			const imageData = context.getImageData(0, 0, width, height);
+			const pixelData = imageData.data;
+
+			pixelData.set(psdImage.pixelData);
+
+			context.putImageData(imageData, 0, 0);
+
+			return new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
+
+		};
+
+		const PSDImageData = class {
+			isDataURL() {
+				return false;
+			}
+			get() {}
+			getAsURL() {}
+			getAsDataURL() {}
+		};
+
+		const PSDImageDataAsBlob = class extends PSDImageData {
+
+			_blob;
+
+			constructor(blob) {
+				super();
+				this._blob = blob;
+			}
+
+			static async from(psdImage) {
+				const blob = await toBlob(psdImage);
+				const psdImageData = new PSDImageDataAsBlob(blob);
+				return psdImageData;
+			}
+
+			get() {
+				return this._blob;
+			}
+
+			getAsURL() {
+				return URL.createObjectURL(this._blob);
+			}
+
+			getAsDataURL() {
+				return readAsDataURL(this._blob);
+			}
+
+		};
+
+		const PSDImageDataAsDataURL = class extends PSDImageData {
+
+			_dataURL;
+
+			constructor(dataURL) {
+				super();
+				this._dataURL = dataURL;
+			}
+
+			static from(psdImage) {
+				const dataURL = psdImage.toBase64();
+				const psdImageData = new PSDImageDataAsDataURL(dataURL);
+				return Promise.resolve(psdImageData);
+			}
+
+			isDataURL() {
+				return true;
+			}
+
+			get() {
+				return this._dataURL;
+			}
+
+			getAsURL() {
+				return this._dataURL;
+			}
+
+			getAsDataURL() {
+				return Promise.resolve(this._dataURL);
+			}
+
+		};
+
+		const useCanvasToDataURL = ! HTMLCanvasElement.prototype.toBlob;
+
+		const toPSDImageData = psdImage => {
+			if ( ! useCanvasToDataURL ) {
+				return PSDImageDataAsBlob.from(psdImage);
+			} else {
+				return PSDImageDataAsDataURL.from(psdImage);
+			}
+		};
+
 		return {
 			fromFile,
+			toPSDImageData,
 		};
 
 	})();
@@ -68,12 +184,13 @@
 		const flattenedImage = document.getElementById('flattened-image');
 		const flattenedImageLink = document.getElementById('flattened-image-link');
 
-		const convertToFlattenedImage = psd => {
+		const convertToFlattenedImage = async psd => {
 
-			const dataURL = psd.image.toBase64();
+			const psdImageData = await PSDUtils.toPSDImageData(psd.image);
+			const url = await psdImageData.getAsURL();
 
-			flattenedImage.src = dataURL;
-			flattenedImageLink.href = dataURL;
+			flattenedImage.src = url;
+			flattenedImageLink.href = url;
 
 		};
 
@@ -87,10 +204,12 @@
 
 			_node = {};
 
-			_imageURL;
+			_hasImageData;
+			_psdImageData;
+
 			_imageFileName;
 
-			constructor(node, imageFileName = null) {
+			constructor(node, psdImageData = null, imageFileName = null) {
 
 				for (const [key, value] of Object.entries(node.export())) {
 					if ( ! ['children', 'mask', 'image'].includes(key) ) {
@@ -100,29 +219,50 @@
 
 				this._node.path = node.path(true);
 
-				this._imageURL = node.isLayer() ? node.layer.image.toBase64() : null;
-				this._imageFileName = node.isLayer() ? imageFileName : null;
+				this._hasImageData = Boolean(psdImageData);
+				this._psdImageData = psdImageData;
+
+				this._imageFileName = this.hasImageData() ? imageFileName : null;
 
 			}
 
-			get(withDataURL = false) {
+			static async from(node, imageFileName = null) {
+
+				if ( node.isLayer() ) {
+
+					const psdImageData = await PSDUtils.toPSDImageData(node.layer.image);
+
+					return new ExportedNode(node, psdImageData, imageFileName);
+
+				} else {
+					return new ExportedNode(node);
+				}
+
+			}
+
+			async get(withDataURL = false) {
 
 				const node = Object.assign({}, this._node);
 
-				if ( this.hasImageURL() ) {
-					node.src = withDataURL ? this.getImageURL() : this.getImageFileName();
+				if ( this.hasImageData() ) {
+					if ( withDataURL ) {
+						const psdImageData = this.getPSDImageData();
+						node.src = await psdImageData.getAsDataURL();
+					} else {
+						node.src = this.getImageFileName();
+					}
 				}
 
 				return node;
 
 			}
 
-			hasImageURL() {
-				return Boolean(this._imageURL);
+			hasImageData() {
+				return this._hasImageData;
 			}
 
-			getImageURL() {
-				return this._imageURL;
+			getPSDImageData() {
+				return this._psdImageData;
 			}
 
 			getImageFileName() {
@@ -131,7 +271,7 @@
 
 		};
 
-		const getNodeInfo = root => {
+		const getNodeInfo = async root => {
 
 			// 
 			const width = root.width;
@@ -140,7 +280,9 @@
 			// 
 			const images = [];
 
-			const exportedDescendants = root.descendants().map((node, i) => new ExportedNode(node, i + '.png'));
+			const descendants = root.descendants();
+			const exportedDescendantPromises = descendants.map((node, i) => ExportedNode.from(node, i + '.png'));
+			const exportedDescendants = await Promise.all(exportedDescendantPromises);
 
 			return {
 				width,
@@ -169,12 +311,13 @@
 		const layerInfoLink = document.getElementById('layer-info-link');
 		const layerInfoAndLayerImagesLink = document.getElementById('layer-info-and-layer-images-link');
 
-		const convertToLayerInfo = (nodeInfo, withDataURL = false) => {
+		const convertToLayerInfo = async (nodeInfo, withDataURL = false) => {
 
 			const width = nodeInfo.width;
 			const height = nodeInfo.height;
-			const descendants = nodeInfo.exportedDescendants
+			const descendantPromises = nodeInfo.exportedDescendants
 				.map(exportedNode => exportedNode.get(withDataURL));
+			const descendants = await Promise.all(descendantPromises);
 
 			const layerInfo = {
 				width,
@@ -207,21 +350,32 @@
 
 			// 
 			const exportedDescendants = nodeInfo.exportedDescendants
-				.filter(exportedNode => exportedNode.hasImageURL());
+				.filter(exportedNode => exportedNode.hasImageData());
 
 			for (const exportedNode of exportedDescendants) {
 
 				const name = exportedNode.getImageFileName();
-				const url = exportedNode.getImageURL();
 
-				// 
-				const [, data] = url.match(/^data:[^,]*;base64(?:;[^,]*)?,(.*)$/) || [];
+				const psdImageData = exportedNode.getPSDImageData();
 
-				if ( ! data ) {
-					throw new Error('Invalid image data');
+				if ( psdImageData.isDataURL() ) {
+
+					const url = psdImageData.get();
+
+					// 
+					const [, data] = url.match(/^data:[^,]*;base64(?:;[^,]*)?,(.*)$/) || [];
+
+					if ( ! data ) {
+						throw new Error('Invalid image data');
+					}
+
+					// 
+					folder.file(name, data, { base64: true });
+
+				} else {
+					const data = psdImageData.get();
+					folder.file(name, data);
 				}
-
-				folder.file(name, data, { base64: true });
 
 			}
 
@@ -283,23 +437,23 @@
 				const psd = await PSDUtils.fromFile(file);
 
 				console.time("flattened image");
-				convertToFlattenedImage(psd);
+				await convertToFlattenedImage(psd);
 				console.timeEnd("flattened image");
 
 				const root = psd.tree();
 
 				console.time("node info");
-				const nodeInfo = getNodeInfo(root);
+				const nodeInfo = await getNodeInfo(root);
 				console.timeEnd("node info");
 
-				convertToLayerInfo(nodeInfo, false);
+				await convertToLayerInfo(nodeInfo, false);
 
 				console.time("layer images");
 				await convertToLayerImages(nodeInfo, name);
 				console.timeEnd("layer images");
 
 				console.time("layer info and layer images");
-				convertToLayerInfo(nodeInfo, true);
+				await convertToLayerInfo(nodeInfo, true);
 				console.timeEnd("layer info and layer images");
 
 				result.classList.add('displayed');
