@@ -155,41 +155,20 @@
 
 	})();
 
-	const renderImageName = (() => {
-
-		const flattenedImage = document.getElementById('flattened-image');
-
-		const flattenedImageLink = document.getElementById('flattened-image-link');
-		const layerInfoLink = document.getElementById('layer-info-link');
-		const layerImagesLink = document.getElementById('layer-images-link');
-		const layerInfoAndLayerImagesLink = document.getElementById('layer-info-and-layer-images-link');
-
-		const renderImageName = name => {
-
-			flattenedImage.alt = name;
-
-			flattenedImageLink.download = name + '.png';
-			layerInfoLink.download = name + '-info.json';
-			layerImagesLink.download = name + '-layers.zip';
-			layerInfoAndLayerImagesLink.download = name + '.json';
-
-		};
-
-		return renderImageName;
-
-	})();
-
 	const convertToFlattenedImage = (() => {
 
 		const flattenedImage = document.getElementById('flattened-image');
 		const flattenedImageLink = document.getElementById('flattened-image-link');
 
-		const convertToFlattenedImage = async psd => {
+		const convertToFlattenedImage = async (psd, name) => {
 
 			const psdImageData = await PSDUtils.toPSDImageData(psd.image);
 			const url = await psdImageData.getAsURL();
 
+			flattenedImage.alt = name;
 			flattenedImage.src = url;
+
+			flattenedImageLink.download = name + '.png';
 			flattenedImageLink.href = url;
 
 		};
@@ -198,7 +177,7 @@
 
 	})();
 
-	const getNodeInfo = (() => {
+	const getPSDInfo = (() => {
 
 		const ExportedNode = class {
 
@@ -271,7 +250,9 @@
 
 		};
 
-		const getNodeInfo = async root => {
+		const getPSDInfo = async (psd, name) => {
+
+			const root = psd.tree();
 
 			// 
 			const width = root.width;
@@ -285,6 +266,7 @@
 			const exportedDescendants = await Promise.all(exportedDescendantPromises);
 
 			return {
+				name,
 				width,
 				height,
 				exportedDescendants,
@@ -292,7 +274,7 @@
 
 		};
 
-		return getNodeInfo;
+		return getPSDInfo;
 
 	})();
 
@@ -311,11 +293,11 @@
 		const layerInfoLink = document.getElementById('layer-info-link');
 		const layerInfoAndLayerImagesLink = document.getElementById('layer-info-and-layer-images-link');
 
-		const convertToLayerInfo = async (nodeInfo, withDataURL = false) => {
+		const convertToLayerInfo = async (psdInfo, withDataURL = false) => {
 
-			const width = nodeInfo.width;
-			const height = nodeInfo.height;
-			const descendantPromises = nodeInfo.exportedDescendants
+			const width = psdInfo.width;
+			const height = psdInfo.height;
+			const descendantPromises = psdInfo.exportedDescendants
 				.map(exportedNode => exportedNode.get(withDataURL));
 			const descendants = await Promise.all(descendantPromises);
 
@@ -329,7 +311,9 @@
 
 			// 
 			const a = withDataURL ? layerInfoAndLayerImagesLink : layerInfoLink;
+			const fileName = psdInfo.name + (withDataURL ? '.json' : '-info.json');
 
+			a.download = fileName;
 			a.href = URL.createObjectURL(jsonBlob);
 
 		};
@@ -342,14 +326,14 @@
 
 		const layerImagesLink = document.getElementById('layer-images-link');
 
-		const convertToLayerImages = async (nodeInfo, name) => {
+		const convertToLayerImages = async psdInfo => {
 
 			const zip = new JSZip();
 
-			const folder = zip.folder(name);
+			const folder = zip.folder(psdInfo.name);
 
 			// 
-			const exportedDescendants = nodeInfo.exportedDescendants
+			const exportedDescendants = psdInfo.exportedDescendants
 				.filter(exportedNode => exportedNode.hasImageData());
 
 			for (const exportedNode of exportedDescendants) {
@@ -382,6 +366,7 @@
 			const zipBlob = await zip.generateAsync({ type: 'blob' });
 
 			// 
+			layerImagesLink.download = psdInfo.name + '-layers.zip';
 			layerImagesLink.href = URL.createObjectURL(zipBlob);
 
 		};
@@ -428,32 +413,28 @@
 
 			try {
 
-				// 
+				const psd = await PSDUtils.fromFile(file);
 				const name = getImageName(file.name);
 
-				renderImageName(name);
-
 				// 
-				const psd = await PSDUtils.fromFile(file);
-
 				console.time("flattened image");
-				await convertToFlattenedImage(psd);
+				await convertToFlattenedImage(psd, name);
 				console.timeEnd("flattened image");
 
-				const root = psd.tree();
+				// 
+				console.time("PSD info");
+				const psdInfo = await getPSDInfo(psd, name);
+				console.timeEnd("PSD info");
 
-				console.time("node info");
-				const nodeInfo = await getNodeInfo(root);
-				console.timeEnd("node info");
-
-				await convertToLayerInfo(nodeInfo, false);
+				// 
+				await convertToLayerInfo(psdInfo, false);
 
 				console.time("layer images");
-				await convertToLayerImages(nodeInfo, name);
+				await convertToLayerImages(psdInfo);
 				console.timeEnd("layer images");
 
 				console.time("layer info and layer images");
-				await convertToLayerInfo(nodeInfo, true);
+				await convertToLayerInfo(psdInfo, true);
 				console.timeEnd("layer info and layer images");
 
 				result.classList.add('displayed');
