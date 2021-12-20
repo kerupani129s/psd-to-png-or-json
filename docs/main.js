@@ -194,8 +194,13 @@
 			const psdImageData = await PSDUtils.toPSDImageData(psd.image);
 			const url = await psdImageData.getAsURL();
 
-			flattenedImage.alt = name;
-			flattenedImage.src = url;
+			await new Promise((resolve, reject) => {
+				flattenedImage.onload = () => resolve();
+				flattenedImage.onerror = e => reject(e);
+
+				flattenedImage.alt = name;
+				flattenedImage.src = url;
+			});
 
 			flattenedImageLink.download = name + '.png';
 			flattenedImageLink.href = url;
@@ -407,15 +412,38 @@
 	const convert = (() => {
 
 		const converting = document.getElementById('converting');
-		const errorResult = document.getElementById('error-result');
+
 		const result = document.getElementById('result');
 
-		const showConverting = () => {
+		const errorResult = document.getElementById('error-result');
+		const flattenedImageResult = document.getElementById('flattened-image-result');
+		const layerInfoAndLayerImagesResult = document.getElementById('layer-info-and-layer-images-result');
+		const layerInfoAndLayerImagesSeparatedResult = document.getElementById('layer-info-and-layer-images-separated-result');
+		const layerInfoAndLayerImagesCombinedResult = document.getElementById('layer-info-and-layer-images-combined-result');
 
-			errorResult.classList.remove('displayed');
-			result.classList.remove('displayed');
+		// 
+		const showElement = element => {
+			element.classList.add('displayed');
+		};
 
-			converting.classList.add('displayed');
+		const hideElement = element => {
+			element.classList.remove('displayed');
+		};
+
+		const wait = (delay = 0) => new Promise(resolve => setTimeout(resolve, delay));
+
+		// 
+		const initElements = () => {
+
+			showElement(converting);
+
+			hideElement(result);
+
+			hideElement(errorResult);
+			hideElement(flattenedImageResult);
+			hideElement(layerInfoAndLayerImagesResult);
+			hideElement(layerInfoAndLayerImagesSeparatedResult);
+			hideElement(layerInfoAndLayerImagesCombinedResult);
 
 		};
 
@@ -428,17 +456,9 @@
 			console.error(error);
 		};
 
-		const showError = () => {
-			errorResult.classList.add('displayed');
-		};
-
-		const hideConverting = () => {
-			converting.classList.remove('displayed');
-		};
-
 		const convert = async file => {
 
-			showConverting();
+			initElements();
 
 			ObjectURL.clear();
 
@@ -452,10 +472,24 @@
 				await convertToFlattenedImage(psd, name);
 				console.timeEnd("flattened image");
 
+				showElement(flattenedImageResult);
+				showElement(result);
+
+				// メモ: DOM の更新を確実にするために必要
+				await wait();
+
 				// 
 				console.time("PSD info");
 				const psdInfo = await getPSDInfo(psd, name);
 				console.timeEnd("PSD info");
+
+				// 
+				console.time("layer info and layer images");
+				await convertToLayerInfo(psdInfo, true);
+				console.timeEnd("layer info and layer images");
+
+				showElement(layerInfoAndLayerImagesCombinedResult);
+				showElement(layerInfoAndLayerImagesResult);
 
 				// 
 				await convertToLayerInfo(psdInfo, false);
@@ -464,18 +498,15 @@
 				await convertToLayerImages(psdInfo);
 				console.timeEnd("layer images");
 
-				console.time("layer info and layer images");
-				await convertToLayerInfo(psdInfo, true);
-				console.timeEnd("layer info and layer images");
-
-				result.classList.add('displayed');
+				showElement(layerInfoAndLayerImagesSeparatedResult);
 
 			} catch (error) {
 				renderError(error);
-				showError();
+				showElement(result);
+				showElement(errorResult);
 			}
 
-			hideConverting();
+			hideElement(converting);
 
 		};
 

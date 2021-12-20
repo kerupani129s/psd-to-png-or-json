@@ -65,8 +65,12 @@ a[href]:hover {
  * 
  */
 .converting:not(.displayed),
+.result:not(.displayed),
 .error-result:not(.displayed),
-.result:not(.displayed) {
+.flattened-image-result:not(.displayed),
+.layer-info-and-layer-images-result:not(.displayed),
+.layer-info-and-layer-images-separated-result:not(.displayed),
+.layer-info-and-layer-images-combined-result:not(.displayed) {
 	display: none;
 }
 
