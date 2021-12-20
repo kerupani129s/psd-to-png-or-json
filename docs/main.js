@@ -1,5 +1,34 @@
 (() => {
 
+	const ObjectURL = (() => {
+
+		const set = new Set();
+
+		const create = obj => {
+			const objURL = URL.createObjectURL(obj);
+			set.add(objURL);
+			return objURL;
+		};
+
+		const revoke = objURL => {
+			URL.revokeObjectURL(objURL);
+			set.delete(objURL);
+		};
+
+		const clear = () => {
+			for (const objURL of set) {
+				revoke(objURL);
+			}
+		};
+
+		return {
+			create,
+			revoke,
+			clear,
+		};
+
+	})();
+
 	const PSDUtils = (() => {
 
 		const readAsArrayBuffer = blob => new Promise((resolve, reject) => {
@@ -96,7 +125,7 @@
 			}
 
 			getAsURL() {
-				return URL.createObjectURL(this._blob);
+				return ObjectURL.create(this._blob);
 			}
 
 			getAsDataURL() {
@@ -314,7 +343,7 @@
 			const fileName = psdInfo.name + (withDataURL ? '.json' : '-info.json');
 
 			a.download = fileName;
-			a.href = URL.createObjectURL(jsonBlob);
+			a.href = ObjectURL.create(jsonBlob);
 
 		};
 
@@ -367,7 +396,7 @@
 
 			// 
 			layerImagesLink.download = psdInfo.name + '-layers.zip';
-			layerImagesLink.href = URL.createObjectURL(zipBlob);
+			layerImagesLink.href = ObjectURL.create(zipBlob);
 
 		};
 
@@ -410,6 +439,8 @@
 		const convert = async file => {
 
 			showConverting();
+
+			ObjectURL.clear();
 
 			try {
 
