@@ -430,7 +430,16 @@
 			element.classList.remove('displayed');
 		};
 
-		const wait = (delay = 0) => new Promise(resolve => setTimeout(resolve, delay));
+		/**
+		 * ブラウザの画面を再描画する
+		 * 
+		 * メモ: DOM 変更による画面更新を確実にするために必要
+		 */
+		const repaint = async () => {
+			for (let i = 0; i < 2; i++) {
+				await new Promise(resolve => requestAnimationFrame(resolve));
+			}
+		};
 
 		// 
 		const initElements = () => {
@@ -475,8 +484,7 @@
 				showElement(flattenedImageResult);
 				showElement(result);
 
-				// メモ: DOM の更新を確実にするために必要
-				await wait();
+				await repaint();
 
 				// 
 				console.time("PSD info");
@@ -490,6 +498,8 @@
 
 				showElement(layerInfoAndLayerImagesCombinedResult);
 				showElement(layerInfoAndLayerImagesResult);
+
+				await repaint();
 
 				// 
 				await convertToLayerInfo(psdInfo, false);
