@@ -528,7 +528,7 @@
 
 		const inputFileElement = document.getElementById('file');
 
-		const converOnEvent = async file => {
+		const convertOnEvent = async file => {
 
 			console.time('all');
 
@@ -550,7 +550,7 @@
 		inputFileElement.addEventListener('change', event => {
 			const files = event.target.files;
 			if ( files.length !== 1 ) return;
-			converOnEvent(files[0]);
+			convertOnEvent(files[0]);
 		});
 
 		// 
@@ -565,7 +565,7 @@
 			const files = event.dataTransfer.files;
 			if ( files.length !== 1 ) return;
 			inputFileElement.files = files;
-			converOnEvent(files[0]);
+			convertOnEvent(files[0]);
 		});
 
 	})();
