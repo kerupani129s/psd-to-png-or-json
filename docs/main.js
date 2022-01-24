@@ -417,7 +417,6 @@
 
 		const errorResult = document.getElementById('error-result');
 		const flattenedImageResult = document.getElementById('flattened-image-result');
-		const layerInfoAndLayerImagesResult = document.getElementById('layer-info-and-layer-images-result');
 		const layerInfoAndLayerImagesSeparatedResult = document.getElementById('layer-info-and-layer-images-separated-result');
 		const layerInfoAndLayerImagesCombinedResult = document.getElementById('layer-info-and-layer-images-combined-result');
 
@@ -445,12 +444,10 @@
 		const initElements = () => {
 
 			showElement(converting);
-
-			hideElement(result);
+			showElement(result);
 
 			hideElement(errorResult);
 			hideElement(flattenedImageResult);
-			hideElement(layerInfoAndLayerImagesResult);
 			hideElement(layerInfoAndLayerImagesSeparatedResult);
 			hideElement(layerInfoAndLayerImagesCombinedResult);
 
@@ -482,7 +479,6 @@
 				console.timeEnd("flattened image");
 
 				showElement(flattenedImageResult);
-				showElement(result);
 
 				await repaint();
 
@@ -497,7 +493,6 @@
 				console.timeEnd("layer info and layer images");
 
 				showElement(layerInfoAndLayerImagesCombinedResult);
-				showElement(layerInfoAndLayerImagesResult);
 
 				await repaint();
 
@@ -512,7 +507,6 @@
 
 			} catch (error) {
 				renderError(error);
-				showElement(result);
 				showElement(errorResult);
 			}
 
