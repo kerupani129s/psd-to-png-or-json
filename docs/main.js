@@ -415,7 +415,8 @@
 
 		const result = document.getElementById('result');
 
-		const errorResult = document.getElementById('error-result');
+		const resultError = document.getElementById('result-error');
+		const resultOk = document.getElementById('result-ok');
 		const flattenedImageResult = document.getElementById('flattened-image-result');
 		const layerInfoAndLayerImagesSeparatedResult = document.getElementById('layer-info-and-layer-images-separated-result');
 		const layerInfoAndLayerImagesCombinedResult = document.getElementById('layer-info-and-layer-images-combined-result');
@@ -443,10 +444,12 @@
 		// 
 		const initElements = () => {
 
-			showElement(converting);
+			showElement(resultOk);
 			showElement(result);
 
-			hideElement(errorResult);
+			showElement(converting);
+
+			hideElement(resultError);
 			hideElement(flattenedImageResult);
 			hideElement(layerInfoAndLayerImagesSeparatedResult);
 			hideElement(layerInfoAndLayerImagesCombinedResult);
@@ -506,8 +509,9 @@
 				showElement(layerInfoAndLayerImagesSeparatedResult);
 
 			} catch (error) {
+				hideElement(resultOk);
 				renderError(error);
-				showElement(errorResult);
+				showElement(resultError);
 			}
 
 			hideElement(converting);
