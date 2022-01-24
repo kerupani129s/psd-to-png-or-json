@@ -553,6 +553,8 @@
 			convertOnEvent(files[0]);
 		});
 
+		inputFileElement.disabled = false;
+
 		// 
 		const body = document.body;
 
