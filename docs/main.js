@@ -1,8 +1,35 @@
 (() => {
 
-	const PSDUtils = (() => {
+	const ObjectURL = (() => {
 
-		const PSD = require('psd');
+		const set = new Set();
+
+		const create = obj => {
+			const objURL = URL.createObjectURL(obj);
+			set.add(objURL);
+			return objURL;
+		};
+
+		const revoke = objURL => {
+			URL.revokeObjectURL(objURL);
+			set.delete(objURL);
+		};
+
+		const clear = () => {
+			for (const objURL of set) {
+				revoke(objURL);
+			}
+		};
+
+		return {
+			create,
+			revoke,
+			clear,
+		};
+
+	})();
+
+	const PSDUtils = (() => {
 
 		const readAsArrayBuffer = blob => new Promise((resolve, reject) => {
 
@@ -14,6 +41,20 @@
 			reader.readAsArrayBuffer(blob);
 
 		});
+
+		const readAsDataURL = blob => new Promise((resolve, reject) => {
+
+			const reader = new FileReader();
+
+			reader.onload = () => resolve(reader.result);
+			reader.onerror = e => reject(e);
+
+			reader.readAsDataURL(blob);
+
+		});
+
+		// 
+		const PSD = require('psd');
 
 		// Issue: https://github.com/meltingice/psd.js/issues/197
 		// const fromFile = file => PSD.fromDroppedFile(file);
@@ -33,33 +74,113 @@
 
 		};
 
+		const toBlob = psdImage => {
+
+			const width = psdImage.width();
+			const height = psdImage.height();
+
+			// 
+			const canvas = document.createElement('canvas');
+			canvas.width = width;
+			canvas.height = height;
+
+			const context = canvas.getContext('2d');
+			const imageData = context.getImageData(0, 0, width, height);
+			const pixelData = imageData.data;
+
+			pixelData.set(psdImage.pixelData);
+
+			context.putImageData(imageData, 0, 0);
+
+			return new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
+
+		};
+
+		const PSDImageData = class {
+			isDataURL() {
+				return false;
+			}
+			get() {}
+			getAsURL() {}
+			getAsDataURL() {}
+		};
+
+		const PSDImageDataAsBlob = class extends PSDImageData {
+
+			_blob;
+
+			constructor(blob) {
+				super();
+				this._blob = blob;
+			}
+
+			static async from(psdImage) {
+				const blob = await toBlob(psdImage);
+				const psdImageData = new PSDImageDataAsBlob(blob);
+				return psdImageData;
+			}
+
+			get() {
+				return this._blob;
+			}
+
+			getAsURL() {
+				return ObjectURL.create(this._blob);
+			}
+
+			getAsDataURL() {
+				return readAsDataURL(this._blob);
+			}
+
+		};
+
+		const PSDImageDataAsDataURL = class extends PSDImageData {
+
+			_dataURL;
+
+			constructor(dataURL) {
+				super();
+				this._dataURL = dataURL;
+			}
+
+			static from(psdImage) {
+				const dataURL = psdImage.toBase64();
+				const psdImageData = new PSDImageDataAsDataURL(dataURL);
+				return Promise.resolve(psdImageData);
+			}
+
+			isDataURL() {
+				return true;
+			}
+
+			get() {
+				return this._dataURL;
+			}
+
+			getAsURL() {
+				return this._dataURL;
+			}
+
+			getAsDataURL() {
+				return Promise.resolve(this._dataURL);
+			}
+
+		};
+
+		const useCanvasToDataURL = ! HTMLCanvasElement.prototype.toBlob;
+
+		const toPSDImageData = psdImage => {
+			if ( ! useCanvasToDataURL ) {
+				return PSDImageDataAsBlob.from(psdImage);
+			} else {
+				return PSDImageDataAsDataURL.from(psdImage);
+			}
+		};
+
 		return {
 			fromFile,
+			toPSDImageData,
 		};
-
-	})();
-
-	const renderImageName = (() => {
-
-		const flattenedImage = document.getElementById('flattened-image');
-
-		const flattenedImageLink = document.getElementById('flattened-image-link');
-		const layerInfoLink = document.getElementById('layer-info-link');
-		const layerImagesLink = document.getElementById('layer-images-link');
-		const layerInfoAndLayerImagesLink = document.getElementById('layer-info-and-layer-images-link');
-
-		const renderImageName = name => {
-
-			flattenedImage.alt = name;
-
-			flattenedImageLink.download = name + '.png';
-			layerInfoLink.download = name + '-info.json';
-			layerImagesLink.download = name + '-layers.zip';
-			layerInfoAndLayerImagesLink.download = name + '.json';
-
-		};
-
-		return renderImageName;
 
 	})();
 
@@ -68,12 +189,21 @@
 		const flattenedImage = document.getElementById('flattened-image');
 		const flattenedImageLink = document.getElementById('flattened-image-link');
 
-		const convertToFlattenedImage = psd => {
+		const convertToFlattenedImage = async (psd, name) => {
 
-			const dataURL = psd.image.toBase64();
+			const psdImageData = await PSDUtils.toPSDImageData(psd.image);
+			const url = await psdImageData.getAsURL();
 
-			flattenedImage.src = dataURL;
-			flattenedImageLink.href = dataURL;
+			await new Promise((resolve, reject) => {
+				flattenedImage.onload = () => resolve();
+				flattenedImage.onerror = e => reject(e);
+
+				flattenedImage.alt = name;
+				flattenedImage.src = url;
+			});
+
+			flattenedImageLink.download = name + '.png';
+			flattenedImageLink.href = url;
 
 		};
 
@@ -81,16 +211,18 @@
 
 	})();
 
-	const getNodeInfo = (() => {
+	const getPSDInfo = (() => {
 
 		const ExportedNode = class {
 
 			_node = {};
 
-			_imageURL;
+			_hasImageData;
+			_psdImageData;
+
 			_imageFileName;
 
-			constructor(node, imageFileName = null) {
+			constructor(node, psdImageData = null, imageFileName = null) {
 
 				for (const [key, value] of Object.entries(node.export())) {
 					if ( ! ['children', 'mask', 'image'].includes(key) ) {
@@ -100,29 +232,50 @@
 
 				this._node.path = node.path(true);
 
-				this._imageURL = node.isLayer() ? node.layer.image.toBase64() : null;
-				this._imageFileName = node.isLayer() ? imageFileName : null;
+				this._hasImageData = Boolean(psdImageData);
+				this._psdImageData = psdImageData;
+
+				this._imageFileName = this.hasImageData() ? imageFileName : null;
 
 			}
 
-			get(withDataURL = false) {
+			static async from(node, imageFileName = null) {
+
+				if ( node.isLayer() ) {
+
+					const psdImageData = await PSDUtils.toPSDImageData(node.layer.image);
+
+					return new ExportedNode(node, psdImageData, imageFileName);
+
+				} else {
+					return new ExportedNode(node);
+				}
+
+			}
+
+			async get(withDataURL = false) {
 
 				const node = Object.assign({}, this._node);
 
-				if ( this.hasImageURL() ) {
-					node.src = withDataURL ? this.getImageURL() : this.getImageFileName();
+				if ( this.hasImageData() ) {
+					if ( withDataURL ) {
+						const psdImageData = this.getPSDImageData();
+						node.src = await psdImageData.getAsDataURL();
+					} else {
+						node.src = this.getImageFileName();
+					}
 				}
 
 				return node;
 
 			}
 
-			hasImageURL() {
-				return Boolean(this._imageURL);
+			hasImageData() {
+				return this._hasImageData;
 			}
 
-			getImageURL() {
-				return this._imageURL;
+			getPSDImageData() {
+				return this._psdImageData;
 			}
 
 			getImageFileName() {
@@ -131,7 +284,9 @@
 
 		};
 
-		const getNodeInfo = root => {
+		const getPSDInfo = async (psd, name) => {
+
+			const root = psd.tree();
 
 			// 
 			const width = root.width;
@@ -140,9 +295,12 @@
 			// 
 			const images = [];
 
-			const exportedDescendants = root.descendants().map((node, i) => new ExportedNode(node, i + '.png'));
+			const descendants = root.descendants();
+			const exportedDescendantPromises = descendants.map((node, i) => ExportedNode.from(node, i + '.png'));
+			const exportedDescendants = await Promise.all(exportedDescendantPromises);
 
 			return {
+				name,
 				width,
 				height,
 				exportedDescendants,
@@ -150,7 +308,7 @@
 
 		};
 
-		return getNodeInfo;
+		return getPSDInfo;
 
 	})();
 
@@ -169,12 +327,13 @@
 		const layerInfoLink = document.getElementById('layer-info-link');
 		const layerInfoAndLayerImagesLink = document.getElementById('layer-info-and-layer-images-link');
 
-		const convertToLayerInfo = (nodeInfo, withDataURL = false) => {
+		const convertToLayerInfo = async (psdInfo, withDataURL = false) => {
 
-			const width = nodeInfo.width;
-			const height = nodeInfo.height;
-			const descendants = nodeInfo.exportedDescendants
+			const width = psdInfo.width;
+			const height = psdInfo.height;
+			const descendantPromises = psdInfo.exportedDescendants
 				.map(exportedNode => exportedNode.get(withDataURL));
+			const descendants = await Promise.all(descendantPromises);
 
 			const layerInfo = {
 				width,
@@ -186,8 +345,10 @@
 
 			// 
 			const a = withDataURL ? layerInfoAndLayerImagesLink : layerInfoLink;
+			const fileName = psdInfo.name + (withDataURL ? '.json' : '-info.json');
 
-			a.href = URL.createObjectURL(jsonBlob);
+			a.download = fileName;
+			a.href = ObjectURL.create(jsonBlob);
 
 		};
 
@@ -199,36 +360,48 @@
 
 		const layerImagesLink = document.getElementById('layer-images-link');
 
-		const convertToLayerImages = async (nodeInfo, name) => {
+		const convertToLayerImages = async psdInfo => {
 
 			const zip = new JSZip();
 
-			const folder = zip.folder(name);
+			const folder = zip.folder(psdInfo.name);
 
 			// 
-			const exportedDescendants = nodeInfo.exportedDescendants
-				.filter(exportedNode => exportedNode.hasImageURL());
+			const exportedDescendants = psdInfo.exportedDescendants
+				.filter(exportedNode => exportedNode.hasImageData());
 
 			for (const exportedNode of exportedDescendants) {
 
 				const name = exportedNode.getImageFileName();
-				const url = exportedNode.getImageURL();
 
-				// 
-				const [, data] = url.match(/^data:[^,]*;base64(?:;[^,]*)?,(.*)$/) || [];
+				const psdImageData = exportedNode.getPSDImageData();
 
-				if ( ! data ) {
-					throw new Error('Invalid image data');
+				if ( psdImageData.isDataURL() ) {
+
+					const url = psdImageData.get();
+
+					// 
+					const [, data] = url.match(/^data:[^,]*;base64(?:;[^,]*)?,(.*)$/) || [];
+
+					if ( ! data ) {
+						throw new Error('Invalid image data');
+					}
+
+					// 
+					folder.file(name, data, { base64: true });
+
+				} else {
+					const data = psdImageData.get();
+					folder.file(name, data);
 				}
-
-				folder.file(name, data, { base64: true });
 
 			}
 
 			const zipBlob = await zip.generateAsync({ type: 'blob' });
 
 			// 
-			layerImagesLink.href = URL.createObjectURL(zipBlob);
+			layerImagesLink.download = psdInfo.name + '-layers.zip';
+			layerImagesLink.href = ObjectURL.create(zipBlob);
 
 		};
 
@@ -239,15 +412,47 @@
 	const convert = (() => {
 
 		const converting = document.getElementById('converting');
-		const errorResult = document.getElementById('error-result');
+
 		const result = document.getElementById('result');
+		const resultError = document.getElementById('result-error');
+		const resultOk = document.getElementById('result-ok');
 
-		const showConverting = () => {
+		const flattenedImageResult = document.getElementById('flattened-image-result');
+		const layerInfoAndLayerImagesSeparatedResult = document.getElementById('layer-info-and-layer-images-separated-result');
+		const layerInfoAndLayerImagesCombinedResult = document.getElementById('layer-info-and-layer-images-combined-result');
 
-			errorResult.classList.remove('displayed');
-			result.classList.remove('displayed');
+		// 
+		const showElement = element => {
+			element.classList.add('displayed');
+		};
 
-			converting.classList.add('displayed');
+		const hideElement = element => {
+			element.classList.remove('displayed');
+		};
+
+		/**
+		 * ブラウザの画面を再描画する
+		 * 
+		 * メモ: DOM 変更による画面更新を確実にするために必要
+		 */
+		const repaint = async () => {
+			for (let i = 0; i < 2; i++) {
+				await new Promise(resolve => requestAnimationFrame(resolve));
+			}
+		};
+
+		// 
+		const initElements = () => {
+
+			hideElement(resultError);
+			showElement(resultOk);
+			showElement(result);
+
+			showElement(converting);
+
+			hideElement(flattenedImageResult);
+			hideElement(layerInfoAndLayerImagesSeparatedResult);
+			hideElement(layerInfoAndLayerImagesCombinedResult);
 
 		};
 
@@ -257,59 +462,59 @@
 		};
 
 		const renderError = error => {
-			console.log(error);
-		};
-
-		const showError = () => {
-			errorResult.classList.add('displayed');
-		};
-
-		const hideConverting = () => {
-			converting.classList.remove('displayed');
+			console.error(error);
 		};
 
 		const convert = async file => {
 
-			showConverting();
+			initElements();
+
+			ObjectURL.clear();
 
 			try {
 
-				// 
+				const psd = await PSDUtils.fromFile(file);
 				const name = getImageName(file.name);
 
-				renderImageName(name);
-
 				// 
-				const psd = await PSDUtils.fromFile(file);
-
 				console.time("flattened image");
-				convertToFlattenedImage(psd);
+				await convertToFlattenedImage(psd, name);
 				console.timeEnd("flattened image");
 
-				const root = psd.tree();
+				showElement(flattenedImageResult);
 
-				console.time("node info");
-				const nodeInfo = getNodeInfo(root);
-				console.timeEnd("node info");
+				await repaint();
 
-				convertToLayerInfo(nodeInfo, false);
+				// 
+				console.time("PSD info");
+				const psdInfo = await getPSDInfo(psd, name);
+				console.timeEnd("PSD info");
 
-				console.time("layer images");
-				await convertToLayerImages(nodeInfo, name);
-				console.timeEnd("layer images");
-
+				// 
 				console.time("layer info and layer images");
-				convertToLayerInfo(nodeInfo, true);
+				await convertToLayerInfo(psdInfo, true);
 				console.timeEnd("layer info and layer images");
 
-				result.classList.add('displayed');
+				showElement(layerInfoAndLayerImagesCombinedResult);
+
+				await repaint();
+
+				// 
+				await convertToLayerInfo(psdInfo, false);
+
+				console.time("layer images");
+				await convertToLayerImages(psdInfo);
+				console.timeEnd("layer images");
+
+				showElement(layerInfoAndLayerImagesSeparatedResult);
 
 			} catch (error) {
+				hideElement(resultOk);
 				renderError(error);
-				showError();
+				showElement(resultError);
 			}
 
-			hideConverting();
+			hideElement(converting);
 
 		};
 
@@ -321,7 +526,7 @@
 
 		const inputFileElement = document.getElementById('file');
 
-		const converOnEvent = async file => {
+		const convertOnEvent = async file => {
 
 			console.time('all');
 
@@ -343,8 +548,10 @@
 		inputFileElement.addEventListener('change', event => {
 			const files = event.target.files;
 			if ( files.length !== 1 ) return;
-			converOnEvent(files[0]);
+			convertOnEvent(files[0]);
 		});
+
+		inputFileElement.disabled = false;
 
 		// 
 		const body = document.body;
@@ -358,7 +565,7 @@
 			const files = event.dataTransfer.files;
 			if ( files.length !== 1 ) return;
 			inputFileElement.files = files;
-			converOnEvent(files[0]);
+			convertOnEvent(files[0]);
 		});
 
 	})();
