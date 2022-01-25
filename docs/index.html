@@ -21,17 +21,17 @@
       <div role="application">
         <h2>Select File</h2>
         <p><input type="file" id="file" accept=".psd" disabled></p>
-        <div id="converting" class="converting">
+        <div id="converting" class="togglable converting">
           <p>Converting ...</p>
         </div>
-        <div id="result" class="result">
+        <div id="result" class="togglable result">
           <h2>Conversion Result</h2>
-          <div id="result-error" class="result-error">
+          <div id="result-error" class="togglable result-error">
             <p class="error">Error!</p>
           </div>
-          <div id="result-ok" class="result-ok">
+          <div id="result-ok" class="togglable result-ok">
             <h3>Flattened Image</h3>
-            <div id="flattened-image-result" class="flattened-image-result">
+            <div id="flattened-image-result" class="togglable result-item">
               <div class="flattened-image-container">
                 <img id="flattened-image" class="flattened-image">
               </div>
@@ -39,19 +39,28 @@
               <a id="flattened-image-link" class="flattened-image-link">Flattened Image (PNG)</a>
               </p>
             </div>
+            <div class="converting-item">
+              <p>Converting ...</p>
+            </div>
             <h3>Layer Information and Layer Images</h3>
             <h4>Separated</h4>
-            <div id="layer-info-and-layer-images-separated-result" class="layer-info-and-layer-images-separated-result">
+            <div id="layer-info-and-layer-images-separated-result" class="togglable result-item">
               <p>
               <a id="layer-info-link" class="layer-info-link">Layer Information (JSON)</a><br>
               <a id="layer-images-link" class="layer-images-link">Layer Images (ZIP of PNG images)</a>
               </p>
             </div>
+            <div class="converting-item">
+              <p>Converting ...</p>
+            </div>
             <h4>Combined</h4>
-            <div id="layer-info-and-layer-images-combined-result" class="layer-info-and-layer-images-combined-result">
+            <div id="layer-info-and-layer-images-combined-result" class="togglable result-item">
               <p>
               <a id="layer-info-and-layer-images-link" class="layer-info-and-layer-images-link">Layer Information and Layer Image Data (JSON)</a>
               </p>
+            </div>
+            <div class="converting-item">
+              <p>Converting ...</p>
             </div>
           </div>
         </div>

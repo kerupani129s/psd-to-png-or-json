@@ -64,13 +64,8 @@ a[href]:hover {
 /**
  * 
  */
-.converting:not(.displayed),
-.result:not(.displayed),
-.result-error:not(.displayed),
-.result-ok:not(.displayed),
-.flattened-image-result:not(.displayed),
-.layer-info-and-layer-images-separated-result:not(.displayed),
-.layer-info-and-layer-images-combined-result:not(.displayed) {
+.togglable:not(.displayed),
+.result-item.displayed + .converting-item {
 	display: none;
 }
 
