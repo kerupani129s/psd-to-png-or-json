@@ -230,7 +230,7 @@
 					}
 				}
 
-				this._node.path = node.path(true);
+				this._node.parentNodeIndex = '_index' in node.parent ? node.parent._index : null;
 
 				this._hasImageData = Boolean(psdImageData);
 				this._psdImageData = psdImageData;
@@ -295,8 +295,11 @@
 			// 
 			const images = [];
 
-			const descendants = root.descendants();
-			const exportedDescendantPromises = descendants.map((node, i) => ExportedNode.from(node, i + '.png'));
+			const descendants = root.descendants().map((node, i) => {
+				node._index = i;
+				return node;
+			});
+			const exportedDescendantPromises = descendants.map(node => ExportedNode.from(node, node._index + '.png'));
 			const exportedDescendants = await Promise.all(exportedDescendantPromises);
 
 			return {
