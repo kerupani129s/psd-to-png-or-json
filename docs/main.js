@@ -222,7 +222,7 @@
 
 			_imageFileName;
 
-			constructor(node, psdImageData = null, imageFileName = null) {
+			constructor(node, parentNodeIndex, psdImageData = null, imageFileName = null) {
 
 				for (const [key, value] of Object.entries(node.export())) {
 					if ( ! ['children', 'mask', 'image'].includes(key) ) {
@@ -230,7 +230,7 @@
 					}
 				}
 
-				this._node.parentNodeIndex = '_index' in node.parent ? node.parent._index : null;
+				this._node.parentNodeIndex = parentNodeIndex;
 
 				this._hasImageData = Boolean(psdImageData);
 				this._psdImageData = psdImageData;
@@ -239,16 +239,16 @@
 
 			}
 
-			static async from(node, imageFileName = null) {
+			static async from(node, parentNodeIndex, imageFileName = null) {
 
 				if ( node.isLayer() ) {
 
 					const psdImageData = await PSDUtils.toPSDImageData(node.layer.image);
 
-					return new ExportedNode(node, psdImageData, imageFileName);
+					return new ExportedNode(node, parentNodeIndex, psdImageData, imageFileName);
 
 				} else {
-					return new ExportedNode(node);
+					return new ExportedNode(node, parentNodeIndex);
 				}
 
 			}
@@ -295,11 +295,13 @@
 			// 
 			const images = [];
 
-			const descendants = root.descendants().map((node, i) => {
-				node._index = i;
-				return node;
-			});
-			const exportedDescendantPromises = descendants.map(node => ExportedNode.from(node, node._index + '.png'));
+			const descendants = root.descendants();
+			const descendantIndices = new Map(descendants.map((node, i) => [node, i]));
+			const parentNodeIndices = descendants.map(node => descendantIndices.get(node.parent) ?? null);
+
+			const exportedDescendantPromises = descendants.map((node, i) => ExportedNode.from(
+				node, parentNodeIndices[i], i + '.png'
+			));
 			const exportedDescendants = await Promise.all(exportedDescendantPromises);
 
 			return {
