@@ -18,54 +18,54 @@
       <header>
         <h1 class="site-title"><a href=".">PSD から PNG/JSON へ変換</a></h1>
       </header>
-      <div role="application">
-        <h2>ファイルを選択</h2>
-        <p><input type="file" id="file" accept=".psd" disabled></p>
-        <div id="converting" class="togglable converting">
-          <p>変換中 ...</p>
-        </div>
-        <div id="result" class="togglable result">
-          <h2>変換結果</h2>
-          <div id="result-error" class="togglable result-error">
-            <p class="error">エラー!</p>
-          </div>
-          <div id="result-ok" class="togglable result-ok">
-            <h3>統合済み画像</h3>
-            <div id="flattened-image-result" class="togglable result-item">
-              <div class="flattened-image-container">
-                <img id="flattened-image" class="flattened-image">
-              </div>
-              <p>
-              <a id="flattened-image-link" class="flattened-image-link">統合済み画像 (PNG)</a>
-              </p>
-            </div>
-            <div class="converting-item">
-              <p>変換中 ...</p>
-            </div>
-            <h3>レイヤー情報とレイヤー画像</h3>
-            <h4>分離</h4>
-            <div id="layer-info-and-layer-images-separated-result" class="togglable result-item">
-              <p>
-              <a id="layer-info-link" class="layer-info-link">レイヤー情報 (JSON)</a><br>
-              <a id="layer-images-link" class="layer-images-link">レイヤー画像 (PNG 画像の ZIP)</a>
-              </p>
-            </div>
-            <div class="converting-item">
-              <p>変換中 ...</p>
-            </div>
-            <h4>統合</h4>
-            <div id="layer-info-and-layer-images-combined-result" class="togglable result-item">
-              <p>
-              <a id="layer-info-and-layer-images-link" class="layer-info-and-layer-images-link">レイヤー情報とレイヤー画像 (JSON)</a>
-              </p>
-            </div>
-            <div class="converting-item">
-              <p>変換中 ...</p>
-            </div>
-          </div>
-        </div>
-      </div>
       <main>
+        <div role="application">
+          <h2>ファイルを選択</h2>
+          <p><input type="file" id="file" accept=".psd" disabled></p>
+          <div id="converting" class="togglable converting">
+            <p>変換中 ...</p>
+          </div>
+          <div id="result" class="togglable result">
+            <h2>変換結果</h2>
+            <div id="result-error" class="togglable result-error">
+              <p class="error">エラー!</p>
+            </div>
+            <div id="result-ok" class="togglable result-ok">
+              <h3>統合済み画像</h3>
+              <div id="flattened-image-result" class="togglable result-item">
+                <div class="flattened-image-container">
+                  <img id="flattened-image" class="flattened-image">
+                </div>
+                <p>
+                <a id="flattened-image-link" class="flattened-image-link">統合済み画像 (PNG)</a>
+                </p>
+              </div>
+              <div class="converting-item">
+                <p>変換中 ...</p>
+              </div>
+              <h3>レイヤー情報とレイヤー画像</h3>
+              <h4>分離</h4>
+              <div id="layer-info-and-layer-images-separated-result" class="togglable result-item">
+                <p>
+                <a id="layer-info-link" class="layer-info-link">レイヤー情報 (JSON)</a><br>
+                <a id="layer-images-link" class="layer-images-link">レイヤー画像 (PNG 画像の ZIP)</a>
+                </p>
+              </div>
+              <div class="converting-item">
+                <p>変換中 ...</p>
+              </div>
+              <h4>統合</h4>
+              <div id="layer-info-and-layer-images-combined-result" class="togglable result-item">
+                <p>
+                <a id="layer-info-and-layer-images-link" class="layer-info-and-layer-images-link">レイヤー情報とレイヤー画像 (JSON)</a>
+                </p>
+              </div>
+              <div class="converting-item">
+                <p>変換中 ...</p>
+              </div>
+            </div>
+          </div>
+        </div>
         <h2>特徴</h2>
         <p>
         出力:
