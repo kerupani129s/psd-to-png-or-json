@@ -1,4 +1,17 @@
+.togglable:not(.displayed) {
+	display: none;
+}
+
+.error {
+	font-weight: bold;
+	color: red;
+}
+
 @media (min-width: 400px) {
+	.flattened-image-container {
+		padding: 0 12px;
+	}
+
 	.layers-result {
 		padding: 0 12px;
 	}
@@ -7,6 +20,12 @@
 		border-left: 1px solid #ccc;
 		border-right: 1px solid #ccc;
 	}
+}
+
+.flattened-image {
+	width: 100%;
+	max-width: 400px;
+	height: auto;
 }
 
 .layers {
