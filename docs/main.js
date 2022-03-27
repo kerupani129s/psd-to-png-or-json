@@ -386,7 +386,7 @@
 					const url = psdImageData.get();
 
 					// 
-					const [, data] = url.match(/^data:[^,]*;base64(?:;[^,]*)?,(.*)$/) || [];
+					const [, data] = url.match(/^data:[^,]*;base64,(.*)$/) || [];
 
 					if ( ! data ) {
 						throw new Error('Invalid image data');
