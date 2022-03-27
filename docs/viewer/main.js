@@ -111,6 +111,8 @@
 			// logNodes(viewer.root);
 
 			// 
+			layers.innerHTML = '';
+
 			await renderLayerInfo(viewer, viewer.root);
 
 		};
