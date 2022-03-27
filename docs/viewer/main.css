@@ -1,0 +1,85 @@
+@media (min-width: 400px) {
+	.layers-result {
+		padding: 0 12px;
+	}
+
+	.layers {
+		border-left: 1px solid #ccc;
+		border-right: 1px solid #ccc;
+	}
+}
+
+.layers {
+	border-top: 1px solid #ccc;
+}
+
+.layer {
+	display: flex;
+	flex-direction: row;
+	height: 48px;
+	border-bottom: 1px solid #ccc;
+}
+
+.layer__visible {
+	width: 22px;
+	text-align: center;
+	line-height: 48px;
+	border-right: 1px solid #eee;
+}
+
+.layer__indent {
+	display: flex;
+	flex-direction: row;
+}
+
+.layer-indent {
+	width: 22px;
+}
+
+.layer__image {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	text-align: center;
+	line-height: 48px;
+}
+
+.layer__image--group {
+	width: 24px;
+}
+
+.layer__image--layer {
+	width: 48px;
+}
+
+.layer__image img {
+	max-width: 46px;
+	max-height: 46px;
+	width: auto;
+	height: auto;
+	border: 1px solid #bbb;
+}
+
+.layer__main {
+	display: flex;
+	flex-direction: column;
+	overflow: hidden; /* メモ: 子要素で text-overflow: ellipsis; するために必要 */
+}
+
+.layer-others {
+	display: flex;
+	flex-direction: row;
+}
+
+.layer-blending-mode {
+	margin-left: 8px;
+	overflow: hidden;
+	white-space: nowrap;
+	text-overflow: ellipsis;
+}
+
+.layer-name {
+	overflow: hidden;
+	white-space: nowrap;
+	text-overflow: ellipsis;
+}
