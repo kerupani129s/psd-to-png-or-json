@@ -13,6 +13,7 @@
 				flattenedImage.onload = () => resolve();
 				flattenedImage.onerror = e => reject(e);
 
+				flattenedImage.decoding = 'sync'; // メモ: ブラウザの設定によってはこれがないと表示が遅れる
 				flattenedImage.alt = name;
 				flattenedImage.src = url;
 			});
