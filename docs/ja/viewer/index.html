@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="ja" prefix="og: https://ogp.me/ns#">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>専用 JSON ビューア - PSD から PNG/JSON へ変換</title>
+    <link rel="stylesheet" href="../../site.css?v1.3.0">
+    <link rel="stylesheet" href="../../viewer/main.css?v1.3.0">
+    <link rel="alternate" hreflang="en" href="https://kerupani129s.github.io/psd-to-png-or-json/viewer/">
+    <meta property="og:title" content="専用 JSON ビューア - PSD から PNG/JSON へ変換">
+    <meta property="og:description" content="専用 JSON ビューア">
+    <meta property="og:url" content="https://kerupani129s.github.io/psd-to-png-or-json/ja/viewer/">
+    <meta property="og:type" content="website">
+    <meta name="twitter:card" content="summary">
+  </head>
+  <body>
+    <div class="site-content">
+      <nav class="language-menu"><a href="../../viewer" rel="alternate" hreflang="en" lang="en">English</a> | 日本語</nav>
+      <header>
+        <h1 class="site-title"><a href="..">PSD から PNG/JSON へ変換</a></h1>
+      </header>
+      <main>
+        <h1>専用 JSON ビューア</h1>
+        <div role="application">
+          <h2>ファイルを選択</h2>
+          <p>注意: 分離されたレイヤー画像は未対応です。</p>
+          <p><input type="file" id="file" accept=".json" disabled></p>
+          <div id="result" class="togglable result">
+            <h2>変換結果</h2>
+            <div id="result-error" class="togglable result-error">
+              <p class="error">エラー!</p>
+            </div>
+            <div id="result-ok" class="togglable result-ok">
+              <h3>統合済み画像</h3>
+              <div class="result-item">
+                <div class="flattened-image-container">
+                  <img id="flattened-image" class="flattened-image" lang="">
+                </div>
+                <p>
+                <a id="flattened-image-link" class="download-link">統合済み画像 (PNG)</a>
+                </p>
+              </div>
+              <h3>レイヤー</h3>
+              <div class="result-item layers-result">
+                <div id="layers" class="layers"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <h2>変換</h2>
+        <p>
+        <a href="..">PSD から PNG/JSON へ変換</a>
+        </p>
+        <h2>免責事項</h2>
+        <p>
+        本ツールは <a href="../license">MIT ライセンス</a>の下で利用可能です。<br>
+        保証なし・責任なし
+        </p>
+        <h2>ライセンス</h2>
+        <p>本ツールは <a href="../license">MIT ライセンス</a>の下で利用可能です。</p>
+      </main>
+      <footer class="site-footer">
+        <a href="https://github.com/kerupani129s/psd-to-png-or-json">GitHub で見る</a>
+      </footer>
+    </div>
+
+    <script src="../../viewer/viewer.js?v1.3.0"></script>
+    <script src="../../viewer/main.js?v1.3.0"></script>
+  </body>
+</html>

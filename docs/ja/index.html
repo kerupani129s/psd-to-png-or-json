@@ -4,7 +4,8 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <title>PSD から PNG/JSON へ変換</title>
-    <link rel="stylesheet" href="../main.css?v1.2.0">
+    <link rel="stylesheet" href="../site.css?v1.3.0">
+    <link rel="stylesheet" href="../main.css?v1.3.0">
     <link rel="alternate" hreflang="en" href="https://kerupani129s.github.io/psd-to-png-or-json/">
     <meta property="og:title" content="PSD から PNG/JSON へ変換">
     <meta property="og:description" content="PSD から PNG/JSON へ変換">
@@ -18,54 +19,54 @@
       <header>
         <h1 class="site-title"><a href=".">PSD から PNG/JSON へ変換</a></h1>
       </header>
-      <div role="application">
-        <h2>ファイルを選択</h2>
-        <p><input type="file" id="file" accept=".psd" disabled></p>
-        <div id="converting" class="togglable converting">
-          <p>変換中 ...</p>
-        </div>
-        <div id="result" class="togglable result">
-          <h2>変換結果</h2>
-          <div id="result-error" class="togglable result-error">
-            <p class="error">エラー!</p>
-          </div>
-          <div id="result-ok" class="togglable result-ok">
-            <h3>統合済み画像</h3>
-            <div id="flattened-image-result" class="togglable result-item">
-              <div class="flattened-image-container">
-                <img id="flattened-image" class="flattened-image">
-              </div>
-              <p>
-              <a id="flattened-image-link" class="flattened-image-link">統合済み画像 (PNG)</a>
-              </p>
-            </div>
-            <div class="converting-item">
-              <p>変換中 ...</p>
-            </div>
-            <h3>レイヤー情報とレイヤー画像</h3>
-            <h4>分離</h4>
-            <div id="layer-info-and-layer-images-separated-result" class="togglable result-item">
-              <p>
-              <a id="layer-info-link" class="layer-info-link">レイヤー情報 (JSON)</a><br>
-              <a id="layer-images-link" class="layer-images-link">レイヤー画像 (PNG 画像の ZIP)</a>
-              </p>
-            </div>
-            <div class="converting-item">
-              <p>変換中 ...</p>
-            </div>
-            <h4>統合</h4>
-            <div id="layer-info-and-layer-images-combined-result" class="togglable result-item">
-              <p>
-              <a id="layer-info-and-layer-images-link" class="layer-info-and-layer-images-link">レイヤー情報とレイヤー画像 (JSON)</a>
-              </p>
-            </div>
-            <div class="converting-item">
-              <p>変換中 ...</p>
-            </div>
-          </div>
-        </div>
-      </div>
       <main>
+        <div role="application">
+          <h2>ファイルを選択</h2>
+          <p><input type="file" id="file" accept=".psd" disabled></p>
+          <div id="converting" class="togglable converting">
+            <p>変換中 ...</p>
+          </div>
+          <div id="result" class="togglable result">
+            <h2>変換結果</h2>
+            <div id="result-error" class="togglable result-error">
+              <p class="error">エラー!</p>
+            </div>
+            <div id="result-ok" class="togglable result-ok">
+              <h3>統合済み画像</h3>
+              <div id="flattened-image-result" class="togglable result-item">
+                <div class="flattened-image-container">
+                  <img id="flattened-image" class="flattened-image" lang="">
+                </div>
+                <p>
+                <a id="flattened-image-link" class="download-link">統合済み画像 (PNG)</a>
+                </p>
+              </div>
+              <div class="converting-item">
+                <p>変換中 ...</p>
+              </div>
+              <h3>レイヤー情報とレイヤー画像</h3>
+              <h4>分離</h4>
+              <div id="layer-info-and-layer-images-separated-result" class="togglable result-item">
+                <p>
+                <a id="layer-info-link" class="download-link">レイヤー情報 (JSON)</a><br>
+                <a id="layer-images-link" class="download-link">レイヤー画像 (PNG 画像の ZIP)</a>
+                </p>
+              </div>
+              <div class="converting-item">
+                <p>変換中 ...</p>
+              </div>
+              <h4>統合</h4>
+              <div id="layer-info-and-layer-images-combined-result" class="togglable result-item">
+                <p>
+                <a id="layer-info-and-layer-images-link" class="download-link">レイヤー情報とレイヤー画像 (JSON)</a>
+                </p>
+              </div>
+              <div class="converting-item">
+                <p>変換中 ...</p>
+              </div>
+            </div>
+          </div>
+        </div>
         <h2>特徴</h2>
         <p>
         出力:
@@ -78,9 +79,13 @@
         変換処理はブラウザ上で行われます。<br>
         PSD ファイルや変換結果、およびその中間データはサーバーにアップロードされません。
         </p>
+        <h2>専用 JSON ビューア</h2>
+        <p>
+        <a href="./viewer">専用 JSON ビューア</a>
+        </p>
         <h2>免責事項</h2>
         <p>
-        全ての PSD ファイル形式をサポートしているわけではありません。
+        全ての PSD ファイル形式に対応しているわけではありません。
         </p>
         <p>
         本ツールは <a href="./license">MIT ライセンス</a>の下で利用可能です。<br>
@@ -97,6 +102,6 @@
 
     <script src="../lib/psd.min.js?v3.4.0"></script>
     <script src="../lib/jszip.min.js?v3.7.1"></script>
-    <script src="../main.js?v1.2.0"></script>
+    <script src="../main.js?v1.3.0"></script>
   </body>
 </html>

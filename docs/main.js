@@ -198,6 +198,7 @@
 				flattenedImage.onload = () => resolve();
 				flattenedImage.onerror = e => reject(e);
 
+				flattenedImage.decoding = 'sync'; // メモ: ブラウザの設定によってはこれがないと表示が遅れる
 				flattenedImage.alt = name;
 				flattenedImage.src = url;
 			});
@@ -222,7 +223,7 @@
 
 			_imageFileName;
 
-			constructor(node, psdImageData = null, imageFileName = null) {
+			constructor(node, parentNodeIndex, psdImageData = null, imageFileName = null) {
 
 				for (const [key, value] of Object.entries(node.export())) {
 					if ( ! ['children', 'mask', 'image'].includes(key) ) {
@@ -230,7 +231,7 @@
 					}
 				}
 
-				this._node.path = node.path(true);
+				this._node.parentNodeIndex = parentNodeIndex;
 
 				this._hasImageData = Boolean(psdImageData);
 				this._psdImageData = psdImageData;
@@ -239,16 +240,16 @@
 
 			}
 
-			static async from(node, imageFileName = null) {
+			static async from(node, parentNodeIndex, imageFileName = null) {
 
 				if ( node.isLayer() ) {
 
 					const psdImageData = await PSDUtils.toPSDImageData(node.layer.image);
 
-					return new ExportedNode(node, psdImageData, imageFileName);
+					return new ExportedNode(node, parentNodeIndex, psdImageData, imageFileName);
 
 				} else {
-					return new ExportedNode(node);
+					return new ExportedNode(node, parentNodeIndex);
 				}
 
 			}
@@ -296,7 +297,12 @@
 			const images = [];
 
 			const descendants = root.descendants();
-			const exportedDescendantPromises = descendants.map((node, i) => ExportedNode.from(node, i + '.png'));
+			const descendantIndices = new Map(descendants.map((node, i) => [node, i]));
+			const parentNodeIndices = descendants.map(node => descendantIndices.get(node.parent) ?? null);
+
+			const exportedDescendantPromises = descendants.map((node, i) => ExportedNode.from(
+				node, parentNodeIndices[i], i + '.png'
+			));
 			const exportedDescendants = await Promise.all(exportedDescendantPromises);
 
 			return {
@@ -381,7 +387,7 @@
 					const url = psdImageData.get();
 
 					// 
-					const [, data] = url.match(/^data:[^,]*;base64(?:;[^,]*)?,(.*)$/) || [];
+					const [, data] = url.match(/^data:[^,]*;base64,(.*)$/) || [];
 
 					if ( ! data ) {
 						throw new Error('Invalid image data');
