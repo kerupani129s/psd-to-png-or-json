@@ -94,7 +94,7 @@
 					'<div class="layer__image' + imageClassName + '">' + imageHTML + '</div>' +
 					'<div class="layer__main">' +
 					'<div class="layer-others"><div class="layer-opacity">' + Math.round(100 * node.opacity) + '%</div><div class="layer-blending-mode">' + escapeHTML(node.blendingMode) + '</div></div>' +
-					'<div class="layer-name">' + escapeHTML(node.name) + '</div>' +
+					'<div class="layer-name" lang="">' + escapeHTML(node.name) + '</div>' +
 					'</div>';
 
 				layers.insertAdjacentHTML('beforeend', html);
