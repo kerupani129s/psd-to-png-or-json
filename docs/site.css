@@ -1,6 +1,7 @@
 body {
 	margin: 8px 0;
 	font-family: sans-serif;
+	line-height: 1.5;
 	color: #282828;
 }
 
@@ -14,6 +15,10 @@ a {
 
 a[href]:hover {
 	text-decoration: underline;
+}
+
+input {
+	font: inherit;
 }
 
 .language-menu {

@@ -86,11 +86,13 @@
 }
 
 .layer-others {
+	flex: 1;
 	display: flex;
 	flex-direction: row;
 }
 
 .layer-blending-mode {
+	flex: 1;
 	margin-left: 8px;
 	overflow: hidden;
 	white-space: nowrap;
