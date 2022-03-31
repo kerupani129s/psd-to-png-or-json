@@ -65,21 +65,21 @@
 			}
 		};
 
+		const escapeHTML = html => html
+			.replaceAll('&', '&amp;')
+			.replaceAll('<', '&lt;').replaceAll('>', '&gt;')
+			.replaceAll('"', '&quot;').replaceAll('\'', '&#39;');
+
 		const getImageHTML = async (viewer, node) => {
 			if ( node.isLayer() ) {
 				// メモ: 処理が重いので保留
 				// const imageURL = await viewer.getImageURL(node);
 				const imageURL = node.image.src;
-				return '<img src="' + imageURL + '">';
+				return '<img lang="" alt="' + escapeHTML(node.name) + '" src="' + escapeHTML(imageURL) + '">';
 			} else {
 				return '📂';
 			}
 		};
-
-		const escapeHTML = html => html
-			.replaceAll('&', '&amp;')
-			.replaceAll('<', '&lt;').replaceAll('>', '&gt;')
-			.replaceAll('"', '&quot;').replaceAll('\'', '&#39;');
 
 		const renderLayerInfo = async (viewer, nodes, depth = 0) => {
 
