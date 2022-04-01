@@ -76,7 +76,7 @@
 			const reader = new FileReader();
 
 			reader.onload = () => resolve(reader.result);
-			reader.onerror = e => reject(e);
+			reader.onerror = () => reject(reader.error);
 
 			reader.readAsText(blob);
 
@@ -87,7 +87,7 @@
 			const image = new Image();
 
 			image.onload = () => resolve(image);
-			image.onerror = e => reject(e);
+			image.onerror = () => reject();
 
 			image.src = src;
 
