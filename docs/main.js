@@ -36,7 +36,7 @@
 			const reader = new FileReader();
 
 			reader.onload = () => resolve(reader.result);
-			reader.onerror = e => reject(e);
+			reader.onerror = () => reject(reader.error);
 
 			reader.readAsArrayBuffer(blob);
 
@@ -47,7 +47,7 @@
 			const reader = new FileReader();
 
 			reader.onload = () => resolve(reader.result);
-			reader.onerror = e => reject(e);
+			reader.onerror = () => reject(reader.error);
 
 			reader.readAsDataURL(blob);
 
@@ -196,7 +196,7 @@
 
 			await new Promise((resolve, reject) => {
 				flattenedImage.onload = () => resolve();
-				flattenedImage.onerror = e => reject(e);
+				flattenedImage.onerror = () => reject();
 
 				flattenedImage.decoding = 'sync'; // メモ: ブラウザの設定によってはこれがないと表示が遅れる
 				flattenedImage.alt = name;
