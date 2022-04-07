@@ -8,6 +8,10 @@
 	color: red;
 }
 
+.file {
+	width: 100%;
+}
+
 @media (min-width: 400px) {
 	.flattened-image-container {
 		padding: 0 12px;
