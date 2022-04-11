@@ -11,7 +11,7 @@
 
 			await new Promise((resolve, reject) => {
 				flattenedImage.onload = () => resolve();
-				flattenedImage.onerror = () => reject();
+				flattenedImage.onerror = () => reject(new Error('Failed to load image'));
 
 				flattenedImage.decoding = 'sync'; // メモ: ブラウザの設定によってはこれがないと表示が遅れる
 				flattenedImage.alt = name;

@@ -87,7 +87,7 @@
 			const image = new Image();
 
 			image.onload = () => resolve(image);
-			image.onerror = () => reject();
+			image.onerror = () => reject(new Error('Failed to load image'));
 
 			image.src = src;
 
