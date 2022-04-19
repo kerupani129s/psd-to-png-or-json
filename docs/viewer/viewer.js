@@ -312,7 +312,7 @@
 
 				return new Viewer(obj.width, obj.height, parsedDescendants, imageURLSet);
 
-			};
+			}
 
 			static async fromFile(file) {
 
@@ -324,7 +324,7 @@
 
 				return Viewer.from(obj);
 
-			};
+			}
 
 			/**
 			 * ノードの画像の位置と大きさを全体に合わせて取得
