@@ -294,8 +294,6 @@
 			const height = root.height;
 
 			// 
-			const images = [];
-
 			const descendants = root.descendants();
 			const descendantIndices = new Map(descendants.map((node, i) => [node, i]));
 			const parentNodeIndices = descendants.map(node => descendantIndices.get(node.parent) ?? null);
