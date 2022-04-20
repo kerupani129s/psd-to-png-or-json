@@ -1,5 +1,10 @@
 (() => {
 
+	const getImageName = filename => {
+		const [, name] = filename.match(/^(.+?)(?:\.[^.]+)?$/);
+		return name;
+	};
+
 	const convertToFlattenedImage = (() => {
 
 		const flattenedImage = document.getElementById('flattened-image');
@@ -145,11 +150,6 @@
 			hideElement(resultError);
 			hideElement(resultOk);
 
-		};
-
-		const getImageName = filename => {
-			const [, name] = filename.match(/^(.+?)(?:\.[^.]+)?$/);
-			return name;
 		};
 
 		const renderError = error => {
