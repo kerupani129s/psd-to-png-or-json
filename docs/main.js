@@ -1,31 +1,33 @@
 (() => {
 
-	const ObjectURL = (() => {
+	const objURLSet = (() => {
 
-		const set = new Set();
+		const ObjectURLSet = class {
 
-		const create = obj => {
-			const objURL = URL.createObjectURL(obj);
-			set.add(objURL);
-			return objURL;
-		};
+			_set = new Set();
 
-		const revoke = objURL => {
-			URL.revokeObjectURL(objURL);
-			set.delete(objURL);
-		};
-
-		const clear = () => {
-			for (const objURL of set) {
-				revoke(objURL);
+			create(obj) {
+				const objURL = URL.createObjectURL(obj);
+				this._set.add(objURL);
+				return objURL;
 			}
+
+			revoke(objURL) {
+				URL.revokeObjectURL(objURL);
+				this._set.delete(objURL);
+			}
+
+			clear() {
+				for (const objURL of this._set) {
+					this.revoke(objURL);
+				}
+			}
+
 		};
 
-		return {
-			create,
-			revoke,
-			clear,
-		};
+		const objURLSet = new ObjectURLSet();
+
+		return objURLSet;
 
 	})();
 
@@ -125,7 +127,7 @@
 			}
 
 			getAsURL() {
-				return ObjectURL.create(this._blob);
+				return objURLSet.create(this._blob);
 			}
 
 			getAsDataURL() {
@@ -357,7 +359,7 @@
 			const fileName = psdInfo.name + (withDataURL ? '.json' : '-info.json');
 
 			a.download = fileName;
-			a.href = ObjectURL.create(jsonBlob);
+			a.href = objURLSet.create(jsonBlob);
 
 		};
 
@@ -410,7 +412,7 @@
 
 			// 
 			layerImagesLink.download = psdInfo.name + '-layers.zip';
-			layerImagesLink.href = ObjectURL.create(zipBlob);
+			layerImagesLink.href = objURLSet.create(zipBlob);
 
 		};
 
@@ -473,7 +475,7 @@
 
 			initElements();
 
-			ObjectURL.clear();
+			objURLSet.clear();
 
 			try {
 
