@@ -1,3 +1,7 @@
+.file {
+	width: 100%;
+}
+
 .togglable:not(.displayed),
 .result-item.displayed + .converting-item {
 	display: none;
@@ -6,10 +10,6 @@
 .error {
 	font-weight: bold;
 	color: red;
-}
-
-.file {
-	width: 100%;
 }
 
 @media (min-width: 400px) {
