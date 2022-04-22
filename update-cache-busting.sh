@@ -3,7 +3,7 @@ set -euoo pipefail posix
 
 # 
 readonly PSD_JS_LIB_PARAM='v3.4.0'
-readonly JSZIP_LIB_PARAM='v3.7.1'
+readonly JSZIP_LIB_PARAM='v3.9.1'
 
 # 
 function content_hash() {
