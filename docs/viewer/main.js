@@ -1,5 +1,10 @@
 (() => {
 
+	const getImageName = filename => {
+		const [, name] = filename.match(/^(.+?)(?:\.[^.]+)?$/);
+		return name;
+	};
+
 	const convertToFlattenedImage = (() => {
 
 		const flattenedImage = document.getElementById('flattened-image');
@@ -147,11 +152,6 @@
 
 		};
 
-		const getImageName = filename => {
-			const [, name] = filename.match(/^(.+?)(?:\.[^.]+)?$/);
-			return name;
-		};
-
 		const renderError = error => {
 			console.error(error);
 		};
@@ -213,7 +213,7 @@
 		inputFileElement.addEventListener('change', event => {
 			const files = event.target.files;
 			if ( files.length !== 1 ) return;
-			convertOnEvent(files[0]);
+			convertOnEvent(files[0]); // メモ: await していないため注意
 		});
 
 		inputFileElement.disabled = false;
@@ -230,7 +230,7 @@
 			const files = event.dataTransfer.files;
 			if ( files.length !== 1 ) return;
 			inputFileElement.files = files;
-			convertOnEvent(files[0]);
+			convertOnEvent(files[0]); // メモ: await していないため注意
 		});
 
 	})();

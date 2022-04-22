@@ -1,31 +1,33 @@
 (() => {
 
-	const ObjectURL = (() => {
+	const objURLSet = (() => {
 
-		const set = new Set();
+		const ObjectURLSet = class {
 
-		const create = obj => {
-			const objURL = URL.createObjectURL(obj);
-			set.add(objURL);
-			return objURL;
-		};
+			_set = new Set();
 
-		const revoke = objURL => {
-			URL.revokeObjectURL(objURL);
-			set.delete(objURL);
-		};
-
-		const clear = () => {
-			for (const objURL of set) {
-				revoke(objURL);
+			create(obj) {
+				const objURL = URL.createObjectURL(obj);
+				this._set.add(objURL);
+				return objURL;
 			}
+
+			revoke(objURL) {
+				URL.revokeObjectURL(objURL);
+				this._set.delete(objURL);
+			}
+
+			clear() {
+				for (const objURL of this._set) {
+					this.revoke(objURL);
+				}
+			}
+
 		};
 
-		return {
-			create,
-			revoke,
-			clear,
-		};
+		const objURLSet = new ObjectURLSet();
+
+		return objURLSet;
 
 	})();
 
@@ -125,7 +127,7 @@
 			}
 
 			getAsURL() {
-				return ObjectURL.create(this._blob);
+				return objURLSet.create(this._blob);
 			}
 
 			getAsDataURL() {
@@ -183,6 +185,11 @@
 		};
 
 	})();
+
+	const getImageName = filename => {
+		const [, name] = filename.match(/^(.+?)(?:\.[^.]+)?$/);
+		return name;
+	};
 
 	const convertToFlattenedImage = (() => {
 
@@ -294,8 +301,6 @@
 			const height = root.height;
 
 			// 
-			const images = [];
-
 			const descendants = root.descendants();
 			const descendantIndices = new Map(descendants.map((node, i) => [node, i]));
 			const parentNodeIndices = descendants.map(node => descendantIndices.get(node.parent) ?? null);
@@ -354,7 +359,7 @@
 			const fileName = psdInfo.name + (withDataURL ? '.json' : '-info.json');
 
 			a.download = fileName;
-			a.href = ObjectURL.create(jsonBlob);
+			a.href = objURLSet.create(jsonBlob);
 
 		};
 
@@ -407,7 +412,7 @@
 
 			// 
 			layerImagesLink.download = psdInfo.name + '-layers.zip';
-			layerImagesLink.href = ObjectURL.create(zipBlob);
+			layerImagesLink.href = objURLSet.create(zipBlob);
 
 		};
 
@@ -462,11 +467,6 @@
 
 		};
 
-		const getImageName = filename => {
-			const [, name] = filename.match(/^(.+?)(?:\.[^.]+)?$/);
-			return name;
-		};
-
 		const renderError = error => {
 			console.error(error);
 		};
@@ -475,7 +475,7 @@
 
 			initElements();
 
-			ObjectURL.clear();
+			objURLSet.clear();
 
 			try {
 
@@ -554,7 +554,7 @@
 		inputFileElement.addEventListener('change', event => {
 			const files = event.target.files;
 			if ( files.length !== 1 ) return;
-			convertOnEvent(files[0]);
+			convertOnEvent(files[0]); // メモ: await していないため注意
 		});
 
 		inputFileElement.disabled = false;
@@ -571,7 +571,7 @@
 			const files = event.dataTransfer.files;
 			if ( files.length !== 1 ) return;
 			inputFileElement.files = files;
-			convertOnEvent(files[0]);
+			convertOnEvent(files[0]); // メモ: await していないため注意
 		});
 
 	})();
