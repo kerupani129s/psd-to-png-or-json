@@ -1,4 +1,5 @@
-/docs/ linguist-detectable
+/docs/ -linguist-documentation
+/docs/*/ -linguist-vendored
 
 /docs/lib/ linguist-vendored
 
