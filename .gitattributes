@@ -1,7 +1,7 @@
 /docs/* -linguist-documentation
 /docs/* -linguist-vendored
 
-/docs/lib/ linguist-vendored
+/docs/lib/** linguist-vendored
 
-license/ linguist-documentation
-third-party-licenses/ linguist-documentation
+license/** linguist-documentation
+third-party-licenses/** linguist-documentation
