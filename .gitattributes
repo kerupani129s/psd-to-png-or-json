@@ -1,0 +1,6 @@
+/docs/ linguist-detectable
+
+/docs/lib/ linguist-vendored
+
+license/ linguist-documentation
+third-party-licenses/ linguist-documentation
