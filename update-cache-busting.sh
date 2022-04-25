@@ -30,22 +30,22 @@ readonly VIEWER_MAIN_JS_PARAM
 
 # 
 sed -Ei \
-	-e 's/(\/site\.css\?)[^"]*/\1'"$SITE_CSS_PARAM"'/g' \
-	-e 's/(\/main\.css\?)[^"]*/\1'"$CONVERTER_MAIN_CSS_PARAM"'/g' \
-	-e 's/(\/psd\.min\.js\?)[^"]*/\1'"$PSD_JS_LIB_PARAM"'/g' \
-	-e 's/(\/jszip\.min\.js\?)[^"]*/\1'"$JSZIP_LIB_PARAM"'/g' \
-	-e 's/(\/main\.js\?)[^"]*/\1'"$CONVERTER_MAIN_JS_PARAM"'/g' \
+	-e 's/(["/]site\.css\?)[^"]*/\1'"$SITE_CSS_PARAM"'/g' \
+	-e 's/(["/]main\.css\?)[^"]*/\1'"$CONVERTER_MAIN_CSS_PARAM"'/g' \
+	-e 's/(["/]psd\.min\.js\?)[^"]*/\1'"$PSD_JS_LIB_PARAM"'/g' \
+	-e 's/(["/]jszip\.min\.js\?)[^"]*/\1'"$JSZIP_LIB_PARAM"'/g' \
+	-e 's/(["/]main\.js\?)[^"]*/\1'"$CONVERTER_MAIN_JS_PARAM"'/g' \
 	./docs/index.html ./docs/ja/index.html
 
 sed -Ei \
-	-e 's/(\/site\.css\?)[^"]*/\1'"$SITE_CSS_PARAM"'/g' \
-	-e 's/(\/main\.css\?)[^"]*/\1'"$VIEWER_MAIN_CSS_PARAM"'/g' \
-	-e 's/(\/viewer\.js\?)[^"]*/\1'"$VIEWER_VIEWER_JS_PARAM"'/g' \
-	-e 's/(\/main\.js\?)[^"]*/\1'"$VIEWER_MAIN_JS_PARAM"'/g' \
+	-e 's/(["/]site\.css\?)[^"]*/\1'"$SITE_CSS_PARAM"'/g' \
+	-e 's/(["/]main\.css\?)[^"]*/\1'"$VIEWER_MAIN_CSS_PARAM"'/g' \
+	-e 's/(["/]viewer\.js\?)[^"]*/\1'"$VIEWER_VIEWER_JS_PARAM"'/g' \
+	-e 's/(["/]main\.js\?)[^"]*/\1'"$VIEWER_MAIN_JS_PARAM"'/g' \
 	./docs/viewer/index.html ./docs/ja/viewer/index.html
 
 sed -Ei \
-	-e 's/(\/site\.css\?)[^"]*/\1'"$SITE_CSS_PARAM"'/g' \
+	-e 's/(["/]site\.css\?)[^"]*/\1'"$SITE_CSS_PARAM"'/g' \
 	./docs/license/index.html ./docs/ja/license/index.html \
 	./docs/third-party-licenses/index.html ./docs/ja/third-party-licenses/index.html
 
