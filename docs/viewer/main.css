@@ -38,33 +38,33 @@
 
 .layer {
 	display: flex;
-	flex-direction: row;
 	height: 48px;
 	border-bottom: 1px solid #ccc;
 }
 
 .layer__visible {
+	flex: none;
+	display: flex;
+	justify-content: center;
+	align-items: center;
 	width: 22px;
-	text-align: center;
-	line-height: 48px;
 	border-right: 1px solid #eee;
 }
 
-.layer__indent {
+.layer__indents {
+	flex: none;
 	display: flex;
-	flex-direction: row;
 }
 
-.layer-indent {
+.layer__indent {
 	width: 22px;
 }
 
 .layer__image {
+	flex: none;
 	display: flex;
 	justify-content: center;
 	align-items: center;
-	text-align: center;
-	line-height: 48px;
 }
 
 .layer__image--group {
@@ -84,27 +84,27 @@
 }
 
 .layer__main {
+	flex: auto;
 	display: flex;
 	flex-direction: column;
-	overflow: hidden; /* メモ: 子要素で text-overflow: ellipsis; するために必要 */
+	white-space: nowrap;
+	overflow: hidden; /* メモ: 子孫要素で text-overflow: ellipsis; するために必要 */
 }
 
-.layer-others {
+.layer__compositing {
 	flex: 1;
 	display: flex;
-	flex-direction: row;
 }
 
-.layer-blending-mode {
-	flex: 1;
+.layer__blending-mode {
+	flex: auto;
 	margin-left: 8px;
 	overflow: hidden;
-	white-space: nowrap;
 	text-overflow: ellipsis;
 }
 
-.layer-name {
+.layer__name {
+	flex: 1;
 	overflow: hidden;
-	white-space: nowrap;
 	text-overflow: ellipsis;
 }
