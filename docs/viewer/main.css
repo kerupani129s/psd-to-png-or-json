@@ -38,7 +38,6 @@
 
 .layer {
 	display: flex;
-	flex-direction: row;
 	height: 48px;
 	border-bottom: 1px solid #ccc;
 }
@@ -52,7 +51,6 @@
 
 .layer__indents {
 	display: flex;
-	flex-direction: row;
 }
 
 .layer__indent {
@@ -92,7 +90,6 @@
 .layer__compositing {
 	flex: 1;
 	display: flex;
-	flex-direction: row;
 }
 
 .layer__blending-mode {
