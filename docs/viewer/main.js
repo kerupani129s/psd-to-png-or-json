@@ -98,7 +98,10 @@
 					'<div class="layer__indents">' + '<div class="layer-indent"></div>'.repeat(depth) + '</div>' +
 					'<div class="layer__image' + imageClassName + '">' + imageHTML + '</div>' +
 					'<div class="layer__main">' +
-					'<div class="layer-compositing"><div class="layer-opacity">' + Math.round(100 * node.opacity) + '%</div><div class="layer-blending-mode">' + escapeHTML(node.blendingMode) + '</div></div>' +
+					'<div class="layer-compositing">' +
+					'<div class="layer-opacity">' + Math.round(100 * node.opacity) + '%</div>' +
+					'<div class="layer-blending-mode">' + escapeHTML(node.blendingMode) + '</div>' +
+					'</div>' +
 					'<div class="layer-name" lang="">' + escapeHTML(node.name) + '</div>' +
 					'</div>';
 
