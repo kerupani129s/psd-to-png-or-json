@@ -43,9 +43,10 @@
 }
 
 .layer__visible {
+	display: flex;
+	justify-content: center;
+	align-items: center;
 	width: 22px;
-	text-align: center;
-	line-height: 48px;
 	border-right: 1px solid #eee;
 }
 
@@ -61,8 +62,6 @@
 	display: flex;
 	justify-content: center;
 	align-items: center;
-	text-align: center;
-	line-height: 48px;
 }
 
 .layer__image--group {
@@ -82,9 +81,11 @@
 }
 
 .layer__main {
+	flex: auto;
 	display: flex;
 	flex-direction: column;
-	overflow: hidden; /* メモ: 子要素で text-overflow: ellipsis; するために必要 */
+	white-space: nowrap;
+	overflow: hidden; /* メモ: 子孫要素で text-overflow: ellipsis; するために必要 */
 }
 
 .layer__compositing {
@@ -93,15 +94,14 @@
 }
 
 .layer__blending-mode {
-	flex: 1;
+	flex: auto;
 	margin-left: 8px;
 	overflow: hidden;
-	white-space: nowrap;
 	text-overflow: ellipsis;
 }
 
 .layer__name {
+	flex: 1;
 	overflow: hidden;
-	white-space: nowrap;
 	text-overflow: ellipsis;
 }
