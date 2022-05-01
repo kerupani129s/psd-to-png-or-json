@@ -43,6 +43,7 @@
 }
 
 .layer__visible {
+	flex: none;
 	display: flex;
 	justify-content: center;
 	align-items: center;
@@ -51,6 +52,7 @@
 }
 
 .layer__indents {
+	flex: none;
 	display: flex;
 }
 
@@ -59,6 +61,7 @@
 }
 
 .layer__image {
+	flex: none;
 	display: flex;
 	justify-content: center;
 	align-items: center;
