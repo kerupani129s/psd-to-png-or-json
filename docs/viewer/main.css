@@ -55,7 +55,7 @@
 	flex-direction: row;
 }
 
-.layer-indent {
+.layer__indent {
 	width: 22px;
 }
 
@@ -89,13 +89,13 @@
 	overflow: hidden; /* メモ: 子要素で text-overflow: ellipsis; するために必要 */
 }
 
-.layer-compositing {
+.layer__compositing {
 	flex: 1;
 	display: flex;
 	flex-direction: row;
 }
 
-.layer-blending-mode {
+.layer__blending-mode {
 	flex: 1;
 	margin-left: 8px;
 	overflow: hidden;
@@ -103,7 +103,7 @@
 	text-overflow: ellipsis;
 }
 
-.layer-name {
+.layer__name {
 	overflow: hidden;
 	white-space: nowrap;
 	text-overflow: ellipsis;

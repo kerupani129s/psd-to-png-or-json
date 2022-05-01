@@ -95,14 +95,14 @@
 
 				const html = '<div class="layer">' +
 					'<div class="layer__visible">' + (node.visible ? '👁' : '') + '</div>' +
-					'<div class="layer__indents">' + '<div class="layer-indent"></div>'.repeat(depth) + '</div>' +
+					'<div class="layer__indents">' + '<div class="layer__indent"></div>'.repeat(depth) + '</div>' +
 					'<div class="layer__image' + imageClassName + '">' + imageHTML + '</div>' +
 					'<div class="layer__main">' +
-					'<div class="layer-compositing">' +
-					'<div class="layer-opacity">' + Math.round(100 * node.opacity) + '%</div>' +
-					'<div class="layer-blending-mode">' + escapeHTML(node.blendingMode) + '</div>' +
+					'<div class="layer__compositing">' +
+					'<div class="layer__opacity">' + Math.round(100 * node.opacity) + '%</div>' +
+					'<div class="layer__blending-mode">' + escapeHTML(node.blendingMode) + '</div>' +
 					'</div>' +
-					'<div class="layer-name" lang="">' + escapeHTML(node.name) + '</div>' +
+					'<div class="layer__name" lang="">' + escapeHTML(node.name) + '</div>' +
 					'</div>';
 
 				layers.insertAdjacentHTML('beforeend', html);
