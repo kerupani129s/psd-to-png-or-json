@@ -50,7 +50,7 @@
 	border-right: 1px solid #eee;
 }
 
-.layer__indent {
+.layer__indents {
 	display: flex;
 	flex-direction: row;
 }
@@ -89,7 +89,7 @@
 	overflow: hidden; /* メモ: 子要素で text-overflow: ellipsis; するために必要 */
 }
 
-.layer-others {
+.layer-compositing {
 	flex: 1;
 	display: flex;
 	flex-direction: row;
