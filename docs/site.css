@@ -22,12 +22,13 @@ input {
 }
 
 .language-menu {
-	padding-top: 8px;
+	padding: 8px 12px 0;
 	text-align: center;
 }
 
 .site-title {
 	text-align: center;
+	padding: 0 12px;
 }
 
 .site-main {
@@ -62,6 +63,6 @@ input {
 }
 
 .site-footer {
-	padding-bottom: 8px;
+	padding: 0 12px 8px;
 	text-align: center;
 }
