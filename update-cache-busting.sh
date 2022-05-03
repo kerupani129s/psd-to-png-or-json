@@ -2,8 +2,8 @@
 set -euoo pipefail posix
 
 # 
-readonly PSD_JS_LIB_PARAM='v3.4.0'
-readonly JSZIP_LIB_PARAM='v3.9.1'
+readonly PSD_JS_LIB_PARAM='v=3.4.0'
+readonly JSZIP_LIB_PARAM='v=3.9.1'
 
 # 
 function content_hash() {
@@ -13,19 +13,19 @@ function content_hash() {
 }
 
 # 
-SITE_CSS_PARAM="$(content_hash ./docs/site.css)"
+SITE_CSS_PARAM="v=$(content_hash ./docs/site.css)"
 readonly SITE_CSS_PARAM
 
-CONVERTER_MAIN_CSS_PARAM="$(content_hash ./docs/main.css)"
+CONVERTER_MAIN_CSS_PARAM="v=$(content_hash ./docs/main.css)"
 readonly CONVERTER_MAIN_CSS_PARAM
-CONVERTER_MAIN_JS_PARAM="$(content_hash ./docs/main.js)"
+CONVERTER_MAIN_JS_PARAM="v=$(content_hash ./docs/main.js)"
 readonly CONVERTER_MAIN_JS_PARAM
 
-VIEWER_MAIN_CSS_PARAM="$(content_hash ./docs/viewer/main.css)"
+VIEWER_MAIN_CSS_PARAM="v=$(content_hash ./docs/viewer/main.css)"
 readonly VIEWER_MAIN_CSS_PARAM
-VIEWER_VIEWER_JS_PARAM="$(content_hash ./docs/viewer/viewer.js)"
+VIEWER_VIEWER_JS_PARAM="v=$(content_hash ./docs/viewer/viewer.js)"
 readonly VIEWER_VIEWER_JS_PARAM
-VIEWER_MAIN_JS_PARAM="$(content_hash ./docs/viewer/main.js)"
+VIEWER_MAIN_JS_PARAM="v=$(content_hash ./docs/viewer/main.js)"
 readonly VIEWER_MAIN_JS_PARAM
 
 # 
