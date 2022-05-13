@@ -15,7 +15,6 @@ function openssl_md4() {
 function content_hash() {
 	local -r file="$1"
 	openssl_md4 "$file" | awk '{ print substr($NF, 0, 20) }'
-	return 0
 }
 
 # 
